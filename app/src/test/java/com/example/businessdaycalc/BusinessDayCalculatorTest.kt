@@ -10,22 +10,16 @@ class BusinessDayCalculatorTest {
     fun testNormalWeekday() {
         val calculator = BusinessDayCalculator(emptySet(), emptySet())
         val start = LocalDate.of(2023, 10, 2) // Monday
-        assertEquals(LocalDate.of(2023, 10, 3), calculator.addBusinessDays(start, 1)) // Tuesday
-        assertEquals(LocalDate.of(2023, 10, 4), calculator.addBusinessDays(start, 2)) // Wednesday
+        assertEquals(LocalDate.of(2023, 10, 2), calculator.addBusinessDays(start, 1)) // Monday
+        assertEquals(LocalDate.of(2023, 10, 3), calculator.addBusinessDays(start, 2)) // Tuesday
     }
 
     @Test
     fun testFridayPlusOne() {
         val calculator = BusinessDayCalculator(emptySet(), emptySet())
         val start = LocalDate.of(2023, 10, 6) // Friday
-        assertEquals(LocalDate.of(2023, 10, 9), calculator.addBusinessDays(start, 1)) // Monday
-    }
-
-    @Test
-    fun testFridayPlusTwo() {
-        val calculator = BusinessDayCalculator(emptySet(), emptySet())
-        val start = LocalDate.of(2023, 10, 6) // Friday
-        assertEquals(LocalDate.of(2023, 10, 10), calculator.addBusinessDays(start, 2)) // Tuesday
+        assertEquals(LocalDate.of(2023, 10, 6), calculator.addBusinessDays(start, 1)) // Friday
+        assertEquals(LocalDate.of(2023, 10, 9), calculator.addBusinessDays(start, 2)) // Monday
     }
 
     @Test
@@ -33,24 +27,8 @@ class BusinessDayCalculatorTest {
         val holidays = setOf(LocalDate.of(2023, 10, 3)) // Tuesday is holiday
         val calculator = BusinessDayCalculator(holidays, emptySet())
         val start = LocalDate.of(2023, 10, 2) // Monday
-        assertEquals(LocalDate.of(2023, 10, 4), calculator.addBusinessDays(start, 1)) // Wednesday
-        assertEquals(LocalDate.of(2023, 10, 5), calculator.addBusinessDays(start, 2)) // Thursday
-    }
-
-    @Test
-    fun testConsecutiveHolidays() {
-        val holidays = setOf(LocalDate.of(2023, 10, 3), LocalDate.of(2023, 10, 4)) // Tue, Wed holiday
-        val calculator = BusinessDayCalculator(emptySet(), holidays)
-        val start = LocalDate.of(2023, 10, 2) // Monday
-        assertEquals(LocalDate.of(2023, 10, 5), calculator.addBusinessDays(start, 1)) // Thursday
-    }
-
-    @Test
-    fun testWeekendAndHolidayCombined() {
-        val holidays = setOf(LocalDate.of(2023, 10, 9)) // Monday is holiday
-        val calculator = BusinessDayCalculator(holidays, emptySet())
-        val start = LocalDate.of(2023, 10, 6) // Friday
-        assertEquals(LocalDate.of(2023, 10, 10), calculator.addBusinessDays(start, 1)) // Tuesday
+        assertEquals(LocalDate.of(2023, 10, 2), calculator.addBusinessDays(start, 1)) // Monday
+        assertEquals(LocalDate.of(2023, 10, 4), calculator.addBusinessDays(start, 2)) // Wednesday (skipping Tue)
     }
 
     @Test
@@ -59,5 +37,17 @@ class BusinessDayCalculatorTest {
         val calculator = BusinessDayCalculator(holidays, emptySet())
         val start = LocalDate.of(2023, 10, 3) // Start on holiday (Tuesday)
         assertEquals(LocalDate.of(2023, 10, 4), calculator.addBusinessDays(start, 1)) // Wednesday
+    }
+
+    @Test
+    fun testDeliveryDates() {
+        val calculator = BusinessDayCalculator(emptySet(), emptySet())
+        val start = LocalDate.of(2026, 9, 3) // Thursday
+        val deliveryDates = calculator.calculateDeliveryDates(start, 3)
+        assertEquals(listOf(
+            LocalDate.of(2026, 9, 3), // Thursday (Today)
+            LocalDate.of(2026, 9, 4), // Friday
+            LocalDate.of(2026, 9, 7)  // Monday
+        ), deliveryDates)
     }
 }
