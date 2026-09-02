@@ -1,0 +1,521 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_bg"
+    android:orientation="vertical"
+    android:padding="12dp">
+
+    <!-- Header Row -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView android:layout_width="52dp" android:layout_height="wrap_content" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="배달일"
+                android:textColor="@color/chip_green_text"
+                android:textStyle="bold"
+                android:textSize="12sp"
+                android:gravity="center" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=":"
+                android:visibility="invisible"
+                android:paddingLeft="2dp"
+                android:paddingRight="2dp" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.38"
+                android:gravity="center">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="보관일"
+                    android:textColor="@color/chip_blue_text"
+                    android:textStyle="bold"
+                    android:textSize="12sp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <ImageButton
+            android:id="@+id/btnWidgetRefresh"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:background="@android:color/transparent"
+            android:src="@drawable/ic_refresh"
+            android:contentDescription="새로고침" />
+    </RelativeLayout>
+
+    <!-- Normal (일반등기) -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:layout_width="52dp"
+            android:layout_height="wrap_content"
+            android:text="일반등기"
+            android:textSize="11.5sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_main" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:gravity="center_vertical|start">
+
+            <TextView
+                android:id="@+id/chipNormalDel1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/chip_green"
+                android:textColor="@color/chip_green_text"
+                android:textSize="10.5sp"
+                android:paddingLeft="4dp"
+                android:paddingRight="4dp"
+                android:paddingTop="2dp"
+                android:paddingBottom="2dp"
+                android:singleLine="true" />
+
+            <TextView
+                android:id="@+id/dashNormalDel1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="-"
+                android:textColor="@color/text_secondary"
+                android:paddingLeft="2dp"
+                android:paddingRight="2dp"
+                android:textSize="10sp" />
+
+            <TextView
+                android:id="@+id/chipNormalDel2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/chip_green"
+                android:textColor="@color/chip_green_text"
+                android:textSize="10.5sp"
+                android:paddingLeft="4dp"
+                android:paddingRight="4dp"
+                android:paddingTop="2dp"
+                android:paddingBottom="2dp"
+                android:singleLine="true" />
+
+            <TextView
+                android:id="@+id/dashNormalDel2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="-"
+                android:textColor="@color/text_secondary"
+                android:paddingLeft="2dp"
+                android:paddingRight="2dp"
+                android:textSize="10sp" />
+
+            <TextView
+                android:id="@+id/chipNormalDel3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/chip_green"
+                android:textColor="@color/chip_green_text"
+                android:textSize="10.5sp"
+                android:paddingLeft="4dp"
+                android:paddingRight="4dp"
+                android:paddingTop="2dp"
+                android:paddingBottom="2dp"
+                android:singleLine="true" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/colonNormal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=":"
+            android:textColor="@color/text_secondary"
+            android:paddingLeft="2dp"
+            android:paddingRight="2dp" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.38"
+            android:gravity="center">
+
+            <TextView
+                android:id="@+id/chipNormalSto"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/chip_blue"
+                android:textColor="@color/chip_blue_text"
+                android:textSize="10.5sp"
+                android:paddingLeft="4dp"
+                android:paddingRight="4dp"
+                android:paddingTop="2dp"
+                android:paddingBottom="2dp"
+                android:singleLine="true" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Court (법원등기) -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:layout_width="52dp"
+            android:layout_height="wrap_content"
+            android:text="법원등기"
+            android:textSize="11.5sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_main" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:gravity="center_vertical|start">
+
+            <TextView
+                android:id="@+id/chipCourtDel1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/chip_green"
+                android:textColor="@color/chip_green_text"
+                android:textSize="10.5sp"
+                android:paddingLeft="4dp"
+                android:paddingRight="4dp"
+                android:paddingTop="2dp"
+                android:paddingBottom="2dp"
+                android:singleLine="true" />
+
+            <TextView
+                android:id="@+id/dashCourtDel1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="-"
+                android:textColor="@color/text_secondary"
+                android:paddingLeft="2dp"
+                android:paddingRight="2dp"
+                android:textSize="10sp" />
+
+            <TextView
+                android:id="@+id/chipCourtDel2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/chip_green"
+                android:textColor="@color/chip_green_text"
+                android:textSize="10.5sp"
+                android:paddingLeft="4dp"
+                android:paddingRight="4dp"
+                android:paddingTop="2dp"
+                android:paddingBottom="2dp"
+                android:singleLine="true" />
+
+            <TextView
+                android:id="@+id/dashCourtDel2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="-"
+                android:textColor="@color/text_secondary"
+                android:paddingLeft="2dp"
+                android:paddingRight="2dp"
+                android:textSize="10sp" />
+
+            <TextView
+                android:id="@+id/chipCourtDel3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/chip_green"
+                android:textColor="@color/chip_green_text"
+                android:textSize="10.5sp"
+                android:paddingLeft="4dp"
+                android:paddingRight="4dp"
+                android:paddingTop="2dp"
+                android:paddingBottom="2dp"
+                android:singleLine="true" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/colonCourt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=":"
+            android:textColor="@color/text_secondary"
+            android:paddingLeft="2dp"
+            android:paddingRight="2dp" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.38"
+            android:gravity="center">
+
+            <TextView
+                android:id="@+id/chipCourtSto"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/chip_blue"
+                android:textColor="@color/chip_blue_text"
+                android:textSize="10.5sp"
+                android:paddingLeft="4dp"
+                android:paddingRight="4dp"
+                android:paddingTop="2dp"
+                android:paddingBottom="2dp"
+                android:singleLine="true" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Certified (내용증명) -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:layout_width="52dp"
+            android:layout_height="wrap_content"
+            android:text="내용증명"
+            android:textSize="11.5sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_main" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:gravity="center_vertical|start">
+
+            <TextView
+                android:id="@+id/chipCertDel1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/chip_green"
+                android:textColor="@color/chip_green_text"
+                android:textSize="10.5sp"
+                android:paddingLeft="4dp"
+                android:paddingRight="4dp"
+                android:paddingTop="2dp"
+                android:paddingBottom="2dp"
+                android:singleLine="true" />
+
+            <TextView
+                android:id="@+id/dashCertDel1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="-"
+                android:textColor="@color/text_secondary"
+                android:paddingLeft="2dp"
+                android:paddingRight="2dp"
+                android:textSize="10sp" />
+
+            <TextView
+                android:id="@+id/chipCertDel2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/chip_green"
+                android:textColor="@color/chip_green_text"
+                android:textSize="10.5sp"
+                android:paddingLeft="4dp"
+                android:paddingRight="4dp"
+                android:paddingTop="2dp"
+                android:paddingBottom="2dp"
+                android:singleLine="true" />
+
+            <TextView
+                android:id="@+id/dashCertDel2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="-"
+                android:textColor="@color/text_secondary"
+                android:paddingLeft="2dp"
+                android:paddingRight="2dp"
+                android:textSize="10sp" />
+
+            <TextView
+                android:id="@+id/chipCertDel3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/chip_green"
+                android:textColor="@color/chip_green_text"
+                android:textSize="10.5sp"
+                android:paddingLeft="4dp"
+                android:paddingRight="4dp"
+                android:paddingTop="2dp"
+                android:paddingBottom="2dp"
+                android:singleLine="true" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/colonCert"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=":"
+            android:textColor="@color/text_secondary"
+            android:paddingLeft="2dp"
+            android:paddingRight="2dp" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.38"
+            android:gravity="center">
+
+            <TextView
+                android:id="@+id/chipCertSto"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/chip_blue"
+                android:textColor="@color/chip_blue_text"
+                android:textSize="10.5sp"
+                android:paddingLeft="4dp"
+                android:paddingRight="4dp"
+                android:paddingTop="2dp"
+                android:paddingBottom="2dp"
+                android:singleLine="true" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Contract (계약등기) -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:layout_width="52dp"
+            android:layout_height="wrap_content"
+            android:text="계약등기"
+            android:textSize="11.5sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_main" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:gravity="center_vertical|start">
+
+            <TextView
+                android:id="@+id/chipContractDel1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/chip_green"
+                android:textColor="@color/chip_green_text"
+                android:textSize="10.5sp"
+                android:paddingLeft="4dp"
+                android:paddingRight="4dp"
+                android:paddingTop="2dp"
+                android:paddingBottom="2dp"
+                android:singleLine="true" />
+
+            <TextView
+                android:id="@+id/dashContractDel1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="-"
+                android:textColor="@color/text_secondary"
+                android:paddingLeft="2dp"
+                android:paddingRight="2dp"
+                android:textSize="10sp" />
+
+            <TextView
+                android:id="@+id/chipContractDel2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/chip_green"
+                android:textColor="@color/chip_green_text"
+                android:textSize="10.5sp"
+                android:paddingLeft="4dp"
+                android:paddingRight="4dp"
+                android:paddingTop="2dp"
+                android:paddingBottom="2dp"
+                android:singleLine="true" />
+
+            <TextView
+                android:id="@+id/dashContractDel2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="-"
+                android:textColor="@color/text_secondary"
+                android:paddingLeft="2dp"
+                android:paddingRight="2dp"
+                android:textSize="10sp" />
+
+            <TextView
+                android:id="@+id/chipContractDel3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/chip_green"
+                android:textColor="@color/chip_green_text"
+                android:textSize="10.5sp"
+                android:paddingLeft="4dp"
+                android:paddingRight="4dp"
+                android:paddingTop="2dp"
+                android:paddingBottom="2dp"
+                android:singleLine="true" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/colonContract"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=":"
+            android:textColor="@color/text_secondary"
+            android:paddingLeft="2dp"
+            android:paddingRight="2dp" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.38"
+            android:gravity="center">
+
+            <TextView
+                android:id="@+id/chipContractSto"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/chip_blue"
+                android:textColor="@color/chip_blue_text"
+                android:textSize="10.5sp"
+                android:paddingLeft="4dp"
+                android:paddingRight="4dp"
+                android:paddingTop="2dp"
+                android:paddingBottom="2dp"
+                android:singleLine="true" />
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>

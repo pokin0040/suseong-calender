@@ -1,0 +1,27 @@
+<resources>
+    <string name="app_name">대구수성만촌등기배달일</string>
+    <string name="title_calculator">계산기</string>
+    <string name="title_holiday">휴무일 관리</string>
+    <string name="title_settings">설정</string>
+    <string name="calculator_desc">오늘 날짜 기준으로 계산됩니다.</string>
+    <string name="holiday_desc">토/일, 공휴일, 사용자가 지정한 휴무일은 계산에서 제외됩니다.</string>
+    <string name="registered_holidays">등록된 휴무일</string>
+    <string name="add_holiday">+ 휴무일 추가</string>
+    <string name="delivery_date">배달일</string>
+    <string name="storage_date">보관일</string>
+    <string name="note_business_day">* 배달일은 영업일 기준으로 계산됩니다.</string>
+    
+    <string name="widget_title_large">대구수성만촌등기배달일 위젯 (대)</string>
+    <string name="widget_title_medium">대구수성만촌등기배달일 위젯 (중)</string>
+    <string name="widget_title_small">대구수성만촌등기배달일 위젯 (소)</string>
+
+    <string name="permission_rationale">기본 캘린더의 공휴일 정보를 읽어 영업일 계산에서 제외하기 위해 캘린더 접근 권한이 필요합니다. 거부하더라도 커스텀 휴무일과 주말(토/일)은 계산에서 제외됩니다.</string>
+    <string name="no_holidays">등록된 커스텀 휴무일이 없습니다.</string>
+    <string name="delete">삭제</string>
+    <string name="save">저장</string>
+    
+    <string name="item_selection">항목 선택</string>
+    <string name="delivery_steps">배달일 단계 수</string>
+    <string name="use_storage">보관일 사용</string>
+    <string name="storage_steps">보관일 단계 수</string>
+</resources>

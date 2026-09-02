@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="primary">#0F7D43</color> <!-- Dark Green from mockup -->
+    <color name="primary_variant">#09592F</color>
+    <color name="secondary">#E8F5E9</color>
+    <color name="text_main">#333333</color>
+    <color name="text_secondary">#777777</color>
+    <color name="chip_green_border">#81C784</color>
+    <color name="chip_green_text">#0F7D43</color>
+    <color name="chip_blue_border">#64B5F6</color>
+    <color name="chip_blue_text">#1976D2</color>
+    <color name="widget_background">#FFFFFF</color>
+    <color name="divider">#EEEEEE</color>
+</resources>
