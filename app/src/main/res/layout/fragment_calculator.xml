@@ -38,12 +38,13 @@
             <Button
                 android:id="@+id/btnRefresh"
                 android:layout_width="wrap_content"
-                android:layout_height="32dp"
-                android:background="@drawable/chip_green"
+                android:layout_height="36dp"
                 android:backgroundTint="@color/white"
                 android:text="새로고침"
                 android:textSize="12sp"
-                android:textColor="@color/text_main" />
+                android:textStyle="bold"
+                android:textColor="@color/primary"
+                style="@style/Widget.MaterialComponents.Button.UnelevatedButton" />
         </LinearLayout>
     </LinearLayout>
 
