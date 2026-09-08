@@ -1,10 +1,12 @@
 package com.example.businessdaycalc
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.GridLayout
@@ -70,6 +72,7 @@ class HolidayFragment : Fragment() {
         rvHolidays.adapter = adapter
 
         btnAddHoliday.setOnClickListener {
+            hideKeyboard()
             if (cardCalendar.isVisible) {
                 cardCalendar.visibility = View.GONE
             } else {
@@ -83,16 +86,19 @@ class HolidayFragment : Fragment() {
         }
 
         btnPrevMonth.setOnClickListener {
+            hideKeyboard()
             displayYearMonth = displayYearMonth.minusMonths(1)
             populateCalendarGrid()
         }
 
         btnNextMonth.setOnClickListener {
+            hideKeyboard()
             displayYearMonth = displayYearMonth.plusMonths(1)
             populateCalendarGrid()
         }
 
         btnConfirmAddHoliday.setOnClickListener {
+            hideKeyboard()
             val name = etHolidayName.text.toString().trim().ifEmpty { "대체공휴일" }
             holidayManager.addHoliday(CustomHoliday(pendingSelectedDate, name))
             cardCalendar.visibility = View.GONE
@@ -101,6 +107,14 @@ class HolidayFragment : Fragment() {
         }
 
         updateList()
+    }
+
+    private fun hideKeyboard() {
+        val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+        val currentFocusView = activity?.currentFocus ?: view
+        currentFocusView?.let {
+            imm?.hideSoftInputFromWindow(it.windowToken, 0)
+        }
     }
 
     private fun populateCalendarGrid() {
@@ -140,6 +154,7 @@ class HolidayFragment : Fragment() {
                 }
 
                 setOnClickListener {
+                    hideKeyboard()
                     pendingSelectedDate = date
                     populateCalendarGrid()
                 }
