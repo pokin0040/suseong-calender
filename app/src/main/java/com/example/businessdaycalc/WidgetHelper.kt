@@ -36,17 +36,7 @@ object WidgetHelper {
             val alphaFloat = opacity.coerceIn(10, 100) / 100f
             views.setFloat(R.id.widget_root, "setAlpha", alphaFloat)
 
-            // Open Widget Settings Activity on Gear icon click
-            val configIntent = Intent(context, WidgetConfigureActivity::class.java).apply {
-                putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-            }
-            val pendingConfig = PendingIntent.getActivity(
-                context, appWidgetId, configIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
-            try {
-                views.setOnClickPendingIntent(R.id.btnWidgetSettings, pendingConfig)
-            } catch (e: Exception) {}
+
 
             val today = LocalDate.now(ZoneId.systemDefault())
 
