@@ -5,10 +5,10 @@ import android.content.SharedPreferences
 import org.json.JSONObject
 
 enum class DeliveryType(val id: String, val displayName: String, val defaultDelivery: Int, val defaultStorageUse: Boolean, val defaultStorage: Int) {
-    NORMAL("normal", "일반등기", 1, true, 5),
-    CERTIFIED("certified", "내용증명", 2, true, 4),
+    NORMAL("normal", "일반등기", 1, true, 4),
+    CERTIFIED("certified", "내용증명", 2, true, 2),
     COURT("court", "법원등기", 3, false, 0),
-    CONTRACT("contract", "계약등기", 3, true, 5)
+    CONTRACT("contract", "계약등기", 3, true, 2)
 }
 
 data class DeliverySetting(
@@ -27,15 +27,21 @@ class SettingsManager(context: Context) {
             try {
                 val obj = JSONObject(jsonStr)
                 var useStorage = obj.getBoolean("useStorage")
-                // Fix for Court mail: default useStorage should be false unless user explicitly edited it
-                if (type == DeliveryType.COURT && !obj.has("user_edited")) {
-                    useStorage = false
+                var storageSteps = obj.getInt("storageSteps")
+                var deliverySteps = obj.getInt("deliverySteps")
+
+                // Update to new defaults if user has not explicitly edited settings
+                if (!obj.has("user_edited")) {
+                    useStorage = type.defaultStorageUse
+                    storageSteps = type.defaultStorage
+                    deliverySteps = type.defaultDelivery
                 }
+
                 return DeliverySetting(
                     type = type,
-                    deliverySteps = obj.getInt("deliverySteps"),
+                    deliverySteps = deliverySteps,
                     useStorage = useStorage,
-                    storageSteps = obj.getInt("storageSteps")
+                    storageSteps = storageSteps
                 )
             } catch (e: Exception) {
                 e.printStackTrace()

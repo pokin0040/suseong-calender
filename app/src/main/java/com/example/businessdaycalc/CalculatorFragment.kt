@@ -243,7 +243,8 @@ class CalculatorFragment : Fragment() {
             }
             storageContainer.addView(colon)
 
-            val storageDate = calculator.addBusinessDays(baseDate, setting.storageSteps)
+            val totalStorageSteps = setting.deliverySteps + setting.storageSteps
+            val storageDate = calculator.addBusinessDays(baseDate, totalStorageSteps)
             val tv = TextView(context).apply {
                 text = formatDate(storageDate)
                 setBackgroundResource(R.drawable.chip_blue)

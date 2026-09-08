@@ -50,4 +50,37 @@ class BusinessDayCalculatorTest {
             LocalDate.of(2026, 9, 7)  // Monday
         ), deliveryDates)
     }
+
+    @Test
+    fun testStorageDateLogicNormal() {
+        // 일반등기: 배달 1 + 보관 4 = 총 5 영업일
+        val calculator = BusinessDayCalculator(emptySet(), emptySet())
+        val baseDate = LocalDate.of(2026, 9, 3) // Thursday
+        val deliverySteps = 1
+        val storageSteps = 4
+        val totalSteps = deliverySteps + storageSteps
+        assertEquals(LocalDate.of(2026, 9, 9), calculator.addBusinessDays(baseDate, totalSteps)) // Wednesday
+    }
+
+    @Test
+    fun testStorageDateLogicCertified() {
+        // 내용증명: 배달 2 + 보관 2 = 총 4 영업일
+        val calculator = BusinessDayCalculator(emptySet(), emptySet())
+        val baseDate = LocalDate.of(2026, 9, 3) // Thursday
+        val deliverySteps = 2
+        val storageSteps = 2
+        val totalSteps = deliverySteps + storageSteps
+        assertEquals(LocalDate.of(2026, 9, 8), calculator.addBusinessDays(baseDate, totalSteps)) // Tuesday
+    }
+
+    @Test
+    fun testStorageDateLogicContract() {
+        // 계약등기: 배달 3 + 보관 2 = 총 5 영업일
+        val calculator = BusinessDayCalculator(emptySet(), emptySet())
+        val baseDate = LocalDate.of(2026, 9, 3) // Thursday
+        val deliverySteps = 3
+        val storageSteps = 2
+        val totalSteps = deliverySteps + storageSteps
+        assertEquals(LocalDate.of(2026, 9, 9), calculator.addBusinessDays(baseDate, totalSteps)) // Wednesday
+    }
 }

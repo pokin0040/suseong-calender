@@ -53,7 +53,8 @@ object WidgetHelper {
             for (type in typesToRender) {
                 val setting = settingsManager.getSetting(type)
                 val deliveryDates = calculator.calculateDeliveryDates(today, setting.deliverySteps)
-                val storageDate = if (setting.useStorage) calculator.addBusinessDays(today, setting.storageSteps) else null
+                val totalStorageSteps = setting.deliverySteps + setting.storageSteps
+                val storageDate = if (setting.useStorage) calculator.addBusinessDays(today, totalStorageSteps) else null
 
                 when (widgetType) {
                     WidgetType.LARGE, WidgetType.MEDIUM -> bindLargeOrMediumRow(views, type, deliveryDates, storageDate)
