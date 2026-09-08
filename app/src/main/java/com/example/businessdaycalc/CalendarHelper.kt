@@ -7,17 +7,12 @@ import android.content.pm.PackageManager
 import android.provider.CalendarContract
 import android.util.Log
 import androidx.core.content.ContextCompat
+import org.json.JSONArray
+import org.json.JSONObject
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.ZoneOffset
-
-data class CalendarEventDetail(
-    val title: String,
-    val description: String,
-    val calName: String,
-    val isPublicHoliday: Boolean
-)
 
 class CalendarHelper(private val context: Context) {
 
@@ -27,7 +22,6 @@ class CalendarHelper(private val context: Context) {
 
     /**
      * 안드로이드/구글 캘린더에서 법정공휴일 날짜만 선별하여 수집합니다.
-     * (크리스마스 이브, 어버이날, 스승의날 등 단순 기념일/Observance는 공휴일에서 제외)
      */
     fun getCalendarHolidays(startDate: LocalDate, endDate: LocalDate): Set<LocalDate> {
         val holidays = mutableSetOf<LocalDate>()
@@ -89,7 +83,6 @@ class CalendarHelper(private val context: Context) {
                             Instant.ofEpochMilli(dtStart).atZone(ZoneId.systemDefault()).toLocalDate()
                         }
 
-                        // 크리스마스 이브, 어버이날, 스승의 날 등 단순 기념일(Observance) 제외 검증
                         val isNonHolidayObservance = isObservance(title, desc)
 
                         if (!isNonHolidayObservance && !date.isBefore(startDate) && !date.isAfter(endDate)) {
@@ -106,14 +99,14 @@ class CalendarHelper(private val context: Context) {
     }
 
     /**
-     * 특정 날짜의 캘린더 이벤트 상세 정보 목록을 디버깅용으로 추출합니다.
+     * 특정 날짜의 캘린더 이벤트 전체 DB 컬럼 속성을 Pretty JSON 포맷으로 추출합니다.
      */
-    fun getEventDetailsForDate(date: LocalDate): List<CalendarEventDetail> {
-        val details = mutableListOf<CalendarEventDetail>()
-
+    fun getEventFullRawJsonForDate(date: LocalDate): String {
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CALENDAR) != PackageManager.PERMISSION_GRANTED) {
-            return details
+            return "{\"error\": \"READ_CALENDAR 권한이 필요합니다.\"}"
         }
+
+        val jsonArray = JSONArray()
 
         try {
             val startMillis = date.minusDays(1).atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli()
@@ -123,39 +116,24 @@ class CalendarHelper(private val context: Context) {
             ContentUris.appendId(builder, startMillis)
             ContentUris.appendId(builder, endMillis)
 
-            val projection = arrayOf(
-                CalendarContract.Instances.BEGIN,
-                CalendarContract.Instances.ALL_DAY,
-                CalendarContract.Instances.TITLE,
-                CalendarContract.Instances.DESCRIPTION,
-                CalendarContract.Instances.CALENDAR_DISPLAY_NAME,
-                CalendarContract.Instances.OWNER_ACCOUNT
-            )
-
             val cursor = context.contentResolver.query(
                 builder.build(),
-                projection,
+                null, // 모든 인스턴스/이벤트 컬럼을 전체 조회
                 null,
                 null,
                 null
             )
 
             cursor?.use {
-                val beginIdx = it.getColumnIndexOrThrow(CalendarContract.Instances.BEGIN)
-                val allDayIdx = it.getColumnIndexOrThrow(CalendarContract.Instances.ALL_DAY)
-                val titleIdx = it.getColumnIndexOrThrow(CalendarContract.Instances.TITLE)
-                val descIdx = it.getColumnIndexOrThrow(CalendarContract.Instances.DESCRIPTION)
-                val calNameIdx = it.getColumnIndexOrThrow(CalendarContract.Instances.CALENDAR_DISPLAY_NAME)
-                val ownerIdx = it.getColumnIndexOrThrow(CalendarContract.Instances.OWNER_ACCOUNT)
+                val columnNames = it.columnNames
 
                 while (it.moveToNext()) {
-                    val isAllDay = it.getInt(allDayIdx) == 1
-                    val title = it.getString(titleIdx) ?: "제목 없음"
-                    val desc = it.getString(descIdx) ?: "설명 없음"
-                    val calName = it.getString(calNameIdx) ?: "캘린더"
-                    val owner = it.getString(ownerIdx)?.lowercase() ?: ""
+                    val allDayIdx = it.getColumnIndex(CalendarContract.Instances.ALL_DAY)
+                    val beginIdx = it.getColumnIndex(CalendarContract.Instances.BEGIN)
 
-                    val dtStart = it.getLong(beginIdx)
+                    val isAllDay = if (allDayIdx >= 0) it.getInt(allDayIdx) == 1 else false
+                    val dtStart = if (beginIdx >= 0) it.getLong(beginIdx) else 0L
+
                     val eventDate = if (isAllDay) {
                         Instant.ofEpochMilli(dtStart).atZone(ZoneOffset.UTC).toLocalDate()
                     } else {
@@ -163,23 +141,35 @@ class CalendarHelper(private val context: Context) {
                     }
 
                     if (eventDate == date) {
-                        val isHolidayCal = owner.contains("holiday@group.v.calendar.google.com") || calName.lowercase().contains("휴일") || calName.lowercase().contains("holiday")
-                        val isObserv = isObservance(title.lowercase(), desc.lowercase())
-                        val isPublicHoliday = isHolidayCal && !isObserv
-
-                        details.add(CalendarEventDetail(title, desc, calName, isPublicHoliday))
+                        val eventObj = JSONObject()
+                        for (colName in columnNames) {
+                            val colIdx = it.getColumnIndex(colName)
+                            when (it.getType(colIdx)) {
+                                android.database.Cursor.FIELD_TYPE_NULL -> eventObj.put(colName, JSONObject.NULL)
+                                android.database.Cursor.FIELD_TYPE_INTEGER -> eventObj.put(colName, it.getLong(colIdx))
+                                android.database.Cursor.FIELD_TYPE_FLOAT -> eventObj.put(colName, it.getDouble(colIdx))
+                                android.database.Cursor.FIELD_TYPE_STRING -> eventObj.put(colName, it.getString(colIdx))
+                                android.database.Cursor.FIELD_TYPE_BLOB -> eventObj.put(colName, "[BLOB Data]")
+                            }
+                        }
+                        jsonArray.put(eventObj)
                     }
                 }
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            val errObj = JSONObject()
+            errObj.put("error", e.message)
+            return errObj.toString(2)
         }
 
-        return details
+        return if (jsonArray.length() == 0) {
+            "[] (선택한 날짜에 기기 DB 이벤트가 없습니다.)"
+        } else {
+            jsonArray.toString(2) // Pretty JSON (indent = 2)
+        }
     }
 
     private fun isObservance(title: String, desc: String): Boolean {
-        // 크리스마스 이브, 어버이날, 스승의 날, 제헌절 등 쉬지 않는 단순 기념일 판별
         if (title.contains("이브") || title.contains("eve")) return true
         if (title.contains("어버이") || title.contains("스승") || title.contains("제헌절") || title.contains("국군의 날")) return true
         if (title.contains("발렌타인") || title.contains("화이트데이") || title.contains("만우절")) return true

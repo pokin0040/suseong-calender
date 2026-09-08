@@ -146,53 +146,37 @@ class CalculatorFragment : Fragment() {
     }
 
     private fun showDateDebugDialog(date: LocalDate) {
+        val prettyJson = calendarHelper.getEventFullRawJsonForDate(date)
+
         val days = arrayOf("월", "화", "수", "목", "금", "토", "일")
         val dayOfWeekStr = days[date.dayOfWeek.value - 1]
 
-        val isWeekend = date.dayOfWeek == java.time.DayOfWeek.SATURDAY || date.dayOfWeek == java.time.DayOfWeek.SUNDAY
-        val customHolidayList = holidayManager.getCustomHolidays().filter { it.date == date }
-        val isCustomHoliday = customHolidayList.isNotEmpty()
-        val customHolidayName = customHolidayList.joinToString { it.name }
-
-        val deviceHolidays = calendarHelper.getCalendarHolidays(date, date)
-        val isDeviceHoliday = deviceHolidays.contains(date)
-
-        val eventDetails = calendarHelper.getEventDetailsForDate(date)
-
-        val calculator = BusinessDayCalculator(
-            holidayManager.getCustomHolidays().map { it.date }.toSet(),
-            deviceHolidays
-        )
-        val isBusinessDay = calculator.addBusinessDays(date, 1) == date
-
         val sb = StringBuilder()
         sb.append("📅 선택 날짜: ${date.format(DateTimeFormatter.ofPattern("yyyy.MM.dd"))} ($dayOfWeekStr)\n\n")
-        sb.append(" • 최종 영업일 여부: ${if (isBusinessDay) "⭕ 영업일" else "❌ 휴무일"}\n")
-        sb.append(" • 주말 여부: ${if (isWeekend) "YES (주말)" else "NO (평일)"}\n")
-        sb.append(" • 임시 휴무일: ${if (isCustomHoliday) "YES ('$customHolidayName')" else "NO"}\n")
-        sb.append(" • 구글/기기 캘린더 공휴일: ${if (isDeviceHoliday) "YES (법정공휴일 인정)" else "NO"}\n\n")
+        sb.append("📋 [Raw DB Pretty JSON]:\n")
+        sb.append(prettyJson)
 
-        if (eventDetails.isNotEmpty()) {
-            sb.append("📌 캘린더 감지 이벤트 정보:\n")
-            eventDetails.forEachIndexed { index, ev ->
-                sb.append(" [${index + 1}] 제목: ${ev.title}\n")
-                sb.append("     설명: ${ev.description.ifEmpty { "없음" }}\n")
-                sb.append("     공휴일 인정 여부: ${if (ev.isPublicHoliday) "⭕ 법정공휴일" else "❌ 단순 기념일(제외됨)"}\n")
-            }
-        } else {
-            sb.append("📌 캘린더 감지 이벤트: 없음\n")
+        val scrollView = android.widget.ScrollView(requireContext()).apply {
+            setPadding(32, 16, 32, 16)
         }
+        val tvMessage = TextView(requireContext()).apply {
+            text = sb.toString().trim()
+            textSize = 12f
+            setTextIsSelectable(true) // 텍스트 복사 가능
+            setTextColor(resources.getColor(R.color.text_main, null))
+        }
+        scrollView.addView(tvMessage)
 
         androidx.appcompat.app.AlertDialog.Builder(requireContext())
-            .setTitle("날짜 속성 디버그")
-            .setMessage(sb.toString().trim())
+            .setTitle("Raw DB Pretty JSON 디버그")
+            .setView(scrollView)
             .setPositiveButton("선택 및 계산") { _, _ ->
                 pendingSelectedDate = date
                 selectedBaseDate = date
                 populateCalendarGrid()
                 refreshCalculations()
             }
-            .setNegativeButton("취소", null)
+            .setNegativeButton("닫기", null)
             .show()
     }
 
