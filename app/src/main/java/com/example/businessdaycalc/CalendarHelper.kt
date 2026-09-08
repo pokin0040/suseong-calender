@@ -12,11 +12,14 @@ import java.time.ZoneId
 class CalendarHelper(private val context: Context) {
 
     fun getCalendarHolidays(startDate: LocalDate, endDate: LocalDate): Set<LocalDate> {
-        if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CALENDAR) != PackageManager.PERMISSION_GRANTED) {
-            return emptySet()
-        }
-
         val holidays = mutableSetOf<LocalDate>()
+
+        // Always include built-in Korean legal public holidays
+        holidays.addAll(KoreanHolidays.HOLIDAYS.filter { !it.isBefore(startDate) && !it.isAfter(endDate) })
+
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CALENDAR) != PackageManager.PERMISSION_GRANTED) {
+            return holidays
+        }
         try {
             // Find calendars that might contain holidays
             val calendarIds = getHolidayCalendarIds()
