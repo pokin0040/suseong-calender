@@ -118,73 +118,6 @@
         </LinearLayout>
     </LinearLayout>
 
-    <!-- Court (법원) -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:orientation="horizontal"
-        android:gravity="center_vertical">
-
-        <TextView
-            android:layout_width="20dp"
-            android:layout_height="wrap_content"
-            android:text="법원"
-            android:textSize="9.5sp"
-            android:textStyle="bold"
-            android:textColor="@color/text_main" />
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center_vertical|start">
-
-            <TextView
-                android:id="@+id/chipCourtDel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@drawable/chip_green"
-                android:textColor="@color/chip_green_text"
-                android:textSize="9sp"
-                android:paddingLeft="2dp"
-                android:paddingRight="2dp"
-                android:paddingTop="1dp"
-                android:paddingBottom="1dp"
-                android:singleLine="true" />
-        </LinearLayout>
-
-        <TextView
-            android:id="@+id/colonCourt"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text=":"
-            android:textColor="@color/text_secondary"
-            android:paddingLeft="1dp"
-            android:paddingRight="1dp"
-            android:textSize="8.5sp" />
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.5"
-            android:gravity="center">
-
-            <TextView
-                android:id="@+id/chipCourtSto"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@drawable/chip_blue"
-                android:textColor="@color/chip_blue_text"
-                android:textSize="9sp"
-                android:paddingLeft="2dp"
-                android:paddingRight="2dp"
-                android:paddingTop="1dp"
-                android:paddingBottom="1dp"
-                android:singleLine="true" />
-        </LinearLayout>
-    </LinearLayout>
-
     <!-- Certified (내용) -->
     <LinearLayout
         android:layout_width="match_parent"
@@ -239,6 +172,73 @@
 
             <TextView
                 android:id="@+id/chipCertSto"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/chip_blue"
+                android:textColor="@color/chip_blue_text"
+                android:textSize="9sp"
+                android:paddingLeft="2dp"
+                android:paddingRight="2dp"
+                android:paddingTop="1dp"
+                android:paddingBottom="1dp"
+                android:singleLine="true" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Court (법원) -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:layout_width="20dp"
+            android:layout_height="wrap_content"
+            android:text="법원"
+            android:textSize="9.5sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_main" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center_vertical|start">
+
+            <TextView
+                android:id="@+id/chipCourtDel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/chip_green"
+                android:textColor="@color/chip_green_text"
+                android:textSize="9sp"
+                android:paddingLeft="2dp"
+                android:paddingRight="2dp"
+                android:paddingTop="1dp"
+                android:paddingBottom="1dp"
+                android:singleLine="true" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/colonCourt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=":"
+            android:textColor="@color/text_secondary"
+            android:paddingLeft="1dp"
+            android:paddingRight="1dp"
+            android:textSize="8.5sp" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5"
+            android:gravity="center">
+
+            <TextView
+                android:id="@+id/chipCourtSto"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@drawable/chip_blue"

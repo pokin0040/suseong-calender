@@ -1,19 +1,21 @@
 package com.example.businessdaycalc
 
-import android.app.DatePickerDialog
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import android.widget.EditText
+import android.widget.GridLayout
+import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.appcompat.app.AlertDialog
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import java.time.LocalDate
+import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 
 class HolidayFragment : Fragment() {
@@ -22,6 +24,17 @@ class HolidayFragment : Fragment() {
     private lateinit var rvHolidays: RecyclerView
     private lateinit var tvEmpty: TextView
     private lateinit var adapter: HolidayAdapter
+
+    private lateinit var btnAddHoliday: Button
+    private lateinit var cardCalendar: LinearLayout
+    private lateinit var btnPrevMonth: ImageView
+    private lateinit var btnNextMonth: ImageView
+    private lateinit var tvCalendarMonthTitle: TextView
+    private lateinit var gridCalendarDays: GridLayout
+    private lateinit var btnConfirmAddHoliday: Button
+
+    private var pendingSelectedDate: LocalDate = LocalDate.now()
+    private var displayYearMonth: YearMonth = YearMonth.now()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_holiday, container, false)
@@ -34,6 +47,14 @@ class HolidayFragment : Fragment() {
         rvHolidays = view.findViewById(R.id.rvHolidays)
         tvEmpty = view.findViewById(R.id.tvEmpty)
 
+        btnAddHoliday = view.findViewById(R.id.btnAddHoliday)
+        cardCalendar = view.findViewById(R.id.cardCalendar)
+        btnPrevMonth = view.findViewById(R.id.btnPrevMonth)
+        btnNextMonth = view.findViewById(R.id.btnNextMonth)
+        tvCalendarMonthTitle = view.findViewById(R.id.tvCalendarMonthTitle)
+        gridCalendarDays = view.findViewById(R.id.gridCalendarDays)
+        btnConfirmAddHoliday = view.findViewById(R.id.btnConfirmAddHoliday)
+
         adapter = HolidayAdapter(
             onDelete = { date ->
                 holidayManager.removeHoliday(date)
@@ -45,42 +66,80 @@ class HolidayFragment : Fragment() {
         rvHolidays.layoutManager = LinearLayoutManager(requireContext())
         rvHolidays.adapter = adapter
 
-        view.findViewById<Button>(R.id.btnAddHoliday).setOnClickListener {
-            showDatePicker()
+        btnAddHoliday.setOnClickListener {
+            if (cardCalendar.isVisible) {
+                cardCalendar.visibility = View.GONE
+            } else {
+                pendingSelectedDate = LocalDate.now()
+                displayYearMonth = YearMonth.now()
+                populateCalendarGrid()
+                cardCalendar.visibility = View.VISIBLE
+            }
+        }
+
+        btnPrevMonth.setOnClickListener {
+            displayYearMonth = displayYearMonth.minusMonths(1)
+            populateCalendarGrid()
+        }
+
+        btnNextMonth.setOnClickListener {
+            displayYearMonth = displayYearMonth.plusMonths(1)
+            populateCalendarGrid()
+        }
+
+        btnConfirmAddHoliday.setOnClickListener {
+            holidayManager.addHoliday(CustomHoliday(pendingSelectedDate, "대체공휴일"))
+            cardCalendar.visibility = View.GONE
+            updateList()
+            updateWidgets()
         }
 
         updateList()
     }
 
-    private fun showDatePicker() {
-        val today = LocalDate.now()
-        DatePickerDialog(
-            requireContext(),
-            { _, year, month, dayOfMonth ->
-                val selectedDate = LocalDate.of(year, month + 1, dayOfMonth)
-                showNameInputDialog(selectedDate)
-            },
-            today.year,
-            today.monthValue - 1,
-            today.dayOfMonth
-        ).show()
-    }
+    private fun populateCalendarGrid() {
+        gridCalendarDays.removeAllViews()
+        tvCalendarMonthTitle.text = "${displayYearMonth.year}년 ${displayYearMonth.monthValue}월"
 
-    private fun showNameInputDialog(date: LocalDate) {
-        val input = EditText(requireContext())
-        input.hint = "예: 창립기념일"
-        
-        AlertDialog.Builder(requireContext())
-            .setTitle("휴무일 이름 입력")
-            .setView(input)
-            .setPositiveButton("추가") { _, _ ->
-                val name = input.text.toString().trim().ifEmpty { "사용자 지정 휴무일" }
-                holidayManager.addHoliday(CustomHoliday(date, name))
-                updateList()
-                updateWidgets()
+        val firstDayOfMonth = displayYearMonth.atDay(1)
+        // Sunday = 0, Mon = 1 ... Sat = 6
+        val firstDayOfWeekOffset = firstDayOfMonth.dayOfWeek.value % 7
+        val gridStartDate = firstDayOfMonth.minusDays(firstDayOfWeekOffset.toLong())
+
+        for (i in 0 until 42) {
+            val date = gridStartDate.plusDays(i.toLong())
+            val cell = TextView(requireContext()).apply {
+                text = date.dayOfMonth.toString()
+                textSize = 14f
+                gravity = android.view.Gravity.CENTER
+                layoutParams = GridLayout.LayoutParams().apply {
+                    width = 0
+                    height = dpToPx(38)
+                    columnSpec = GridLayout.spec(i % 7, 1f)
+                    rowSpec = GridLayout.spec(i / 7)
+                }
+
+                if (date == pendingSelectedDate) {
+                    setBackgroundResource(R.drawable.bg_day_selected)
+                    setTextColor(resources.getColor(R.color.white, null))
+                    setTypeface(null, android.graphics.Typeface.BOLD)
+                } else if (date == LocalDate.now()) {
+                    setBackgroundResource(R.drawable.bg_day_today)
+                    setTextColor(resources.getColor(R.color.primary, null))
+                    setTypeface(null, android.graphics.Typeface.BOLD)
+                } else if (date.monthValue != displayYearMonth.monthValue) {
+                    setTextColor(resources.getColor(R.color.divider, null))
+                } else {
+                    setTextColor(resources.getColor(R.color.text_main, null))
+                }
+
+                setOnClickListener {
+                    pendingSelectedDate = date
+                    populateCalendarGrid()
+                }
             }
-            .setNegativeButton("취소", null)
-            .show()
+            gridCalendarDays.addView(cell)
+        }
     }
 
     private fun updateList() {
@@ -97,8 +156,6 @@ class HolidayFragment : Fragment() {
     }
 
     private fun updateWidgets() {
-        // BroadCast to update ALL widgets (large, medium, small)
-        // For simplicity, we just send a generic broadcast that our receivers will catch
         val updateIntents = listOf(
             Intent(requireContext(), BusinessDayWidgetLarge::class.java),
             Intent(requireContext(), BusinessDayWidgetMedium::class.java),
@@ -109,6 +166,11 @@ class HolidayFragment : Fragment() {
             intent.action = "android.appwidget.action.APPWIDGET_UPDATE"
             requireContext().sendBroadcast(intent)
         }
+    }
+
+    private fun dpToPx(dp: Int): Int {
+        val density = resources.displayMetrics.density
+        return (dp * density).toInt()
     }
 }
 

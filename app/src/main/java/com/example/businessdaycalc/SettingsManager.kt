@@ -6,8 +6,8 @@ import org.json.JSONObject
 
 enum class DeliveryType(val id: String, val displayName: String, val defaultDelivery: Int, val defaultStorageUse: Boolean, val defaultStorage: Int) {
     NORMAL("normal", "일반등기", 1, true, 5),
-    COURT("court", "법원등기", 3, false, 0),
     CERTIFIED("certified", "내용증명", 2, true, 4),
+    COURT("court", "법원등기", 3, false, 0),
     CONTRACT("contract", "계약등기", 3, true, 5)
 }
 
