@@ -237,7 +237,7 @@ class HolidayFragment : Fragment() {
     }
 
     private fun updateList() {
-        val holidays = holidayManager.getCustomHolidays()
+        val holidays = holidayManager.getCustomHolidays().sortedByDescending { it.date }
 
         val selectedYearPos = spFilterYear.selectedItemPosition
         val selectedMonthPos = spFilterMonth.selectedItemPosition
@@ -296,7 +296,7 @@ class HolidayFragment : Fragment() {
 class HolidayAdapter(private val onDelete: (LocalDate) -> Unit) : RecyclerView.Adapter<HolidayAdapter.ViewHolder>() {
 
     private var holidays = listOf<CustomHoliday>()
-    private val formatter = DateTimeFormatter.ofPattern("MM.dd")
+    private val formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd")
     private val days = arrayOf("월", "화", "수", "목", "금", "토", "일")
 
     fun submitList(list: List<CustomHoliday>) {
