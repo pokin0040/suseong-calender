@@ -152,12 +152,26 @@ class HolidayFragment : Fragment() {
         showCalendarDebugDialog()
     }
 
+    private val requestPermissionLauncher = registerForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+            showCalendarDebugDialog()
+            populateCalendarGrid()
+        } else {
+            android.widget.Toast.makeText(requireContext(), "캘린더 권한이 거부되었습니다.", android.widget.Toast.LENGTH_SHORT).show()
+        }
+    }
+
     private fun showCalendarDebugDialog() {
         if (androidx.core.content.ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.READ_CALENDAR) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
             androidx.appcompat.app.AlertDialog.Builder(requireContext())
-                .setTitle("기기 캘린더 디버그")
-                .setMessage("READ_CALENDAR 권한이 허용되어 있지 않습니다.")
-                .setPositiveButton("확인", null)
+                .setTitle("캘린더 권한 필요")
+                .setMessage("기기의 공휴일 정보를 동기화하려면 캘린더 읽기 권한이 필요합니다. 권한을 허용하시겠습니까?")
+                .setPositiveButton("권한 허용") { _, _ ->
+                    requestPermissionLauncher.launch(android.Manifest.permission.READ_CALENDAR)
+                }
+                .setNegativeButton("취소", null)
                 .show()
             return
         }
