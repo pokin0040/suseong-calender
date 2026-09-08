@@ -4,7 +4,6 @@ import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.Intent
-import android.graphics.Color
 import android.view.View
 import android.widget.RemoteViews
 import java.time.LocalDate
@@ -27,13 +26,14 @@ object WidgetHelper {
             val opacity = WidgetPreferences.getOpacity(context, appWidgetId)
             val isDark = WidgetPreferences.isDark(context, appWidgetId)
 
-            val alpha255 = (opacity * 255 / 100)
-            val bgColor = if (isDark) {
-                Color.argb(alpha255, 33, 33, 33)
+            if (isDark) {
+                views.setInt(R.id.widget_root, "setBackgroundResource", R.drawable.widget_bg_dark)
             } else {
-                Color.argb(alpha255, 255, 255, 255)
+                views.setInt(R.id.widget_root, "setBackgroundResource", R.drawable.widget_bg)
             }
-            views.setInt(R.id.widget_root, "setBackgroundColor", bgColor)
+
+            val alphaFloat = opacity.coerceIn(10, 100) / 100f
+            views.setFloat(R.id.widget_root, "setAlpha", alphaFloat)
 
             val today = LocalDate.now(ZoneId.systemDefault())
 

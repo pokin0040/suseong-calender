@@ -3,7 +3,6 @@ package com.example.businessdaycalc
 import android.app.Activity
 import android.appwidget.AppWidgetManager
 import android.content.Intent
-import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
@@ -97,13 +96,18 @@ class WidgetConfigureActivity : AppCompatActivity() {
             WidgetPreferences.saveOpacity(this, appWidgetId, currentOpacity)
             WidgetPreferences.saveTheme(this, appWidgetId, isDarkTheme)
 
-            // Push update to widget
+            // Push update to widget safely according to target type
             val appWidgetManager = AppWidgetManager.getInstance(this)
-            
-            // Try updating large, medium, small widgets safely
-            WidgetHelper.updateWidgets(this, appWidgetManager, appWidgetId, WidgetType.LARGE)
-            WidgetHelper.updateWidgets(this, appWidgetManager, appWidgetId, WidgetType.MEDIUM)
-            WidgetHelper.updateWidgets(this, appWidgetManager, appWidgetId, WidgetType.SMALL)
+            val widgetInfo = appWidgetManager.getAppWidgetInfo(appWidgetId)
+            val className = widgetInfo?.provider?.className ?: ""
+
+            val targetType = when {
+                className.contains("Large") -> WidgetType.LARGE
+                className.contains("Medium") -> WidgetType.MEDIUM
+                else -> WidgetType.SMALL
+            }
+
+            WidgetHelper.updateWidgets(this, appWidgetManager, appWidgetId, targetType)
 
             val resultValue = Intent()
             resultValue.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
@@ -115,18 +119,28 @@ class WidgetConfigureActivity : AppCompatActivity() {
     private fun updatePreview() {
         previewContainer.removeAllViews()
 
-        // Inflate Large Widget preview as representation
-        val previewView = layoutInflater.inflate(R.layout.widget_large, previewContainer, false)
+        val appWidgetManager = AppWidgetManager.getInstance(this)
+        val widgetInfo = appWidgetManager.getAppWidgetInfo(appWidgetId)
+        val className = widgetInfo?.provider?.className ?: ""
 
-        val alpha255 = (currentOpacity * 255 / 100)
-        val bgColor = if (isDarkTheme) {
-            Color.argb(alpha255, 33, 33, 33)
-        } else {
-            Color.argb(alpha255, 255, 255, 255)
+        val layoutRes = when {
+            className.contains("Large") -> R.layout.widget_large
+            className.contains("Medium") -> R.layout.widget_medium
+            else -> R.layout.widget_small
         }
 
+        // Inflate correct preview layout
+        val previewView = layoutInflater.inflate(layoutRes, previewContainer, false)
+
         val widgetRoot = previewView.findViewById<View>(R.id.widget_root)
-        widgetRoot?.setBackgroundColor(bgColor)
+        if (isDarkTheme) {
+            widgetRoot?.setBackgroundResource(R.drawable.widget_bg_dark)
+        } else {
+            widgetRoot?.setBackgroundResource(R.drawable.widget_bg)
+        }
+
+        val alphaFloat = currentOpacity.coerceIn(10, 100) / 100f
+        widgetRoot?.alpha = alphaFloat
 
         previewContainer.addView(previewView)
     }

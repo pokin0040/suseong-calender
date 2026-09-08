@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.EditText
 import android.widget.GridLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -27,6 +28,7 @@ class HolidayFragment : Fragment() {
 
     private lateinit var btnAddHoliday: Button
     private lateinit var cardCalendar: LinearLayout
+    private lateinit var etHolidayName: EditText
     private lateinit var btnPrevMonth: ImageView
     private lateinit var btnNextMonth: ImageView
     private lateinit var tvCalendarMonthTitle: TextView
@@ -49,6 +51,7 @@ class HolidayFragment : Fragment() {
 
         btnAddHoliday = view.findViewById(R.id.btnAddHoliday)
         cardCalendar = view.findViewById(R.id.cardCalendar)
+        etHolidayName = view.findViewById(R.id.etHolidayName)
         btnPrevMonth = view.findViewById(R.id.btnPrevMonth)
         btnNextMonth = view.findViewById(R.id.btnNextMonth)
         tvCalendarMonthTitle = view.findViewById(R.id.tvCalendarMonthTitle)
@@ -72,6 +75,8 @@ class HolidayFragment : Fragment() {
             } else {
                 pendingSelectedDate = LocalDate.now()
                 displayYearMonth = YearMonth.now()
+                etHolidayName.setText("대체공휴일")
+                etHolidayName.setSelection(etHolidayName.text.length)
                 populateCalendarGrid()
                 cardCalendar.visibility = View.VISIBLE
             }
@@ -88,7 +93,8 @@ class HolidayFragment : Fragment() {
         }
 
         btnConfirmAddHoliday.setOnClickListener {
-            holidayManager.addHoliday(CustomHoliday(pendingSelectedDate, "대체공휴일"))
+            val name = etHolidayName.text.toString().trim().ifEmpty { "대체공휴일" }
+            holidayManager.addHoliday(CustomHoliday(pendingSelectedDate, name))
             cardCalendar.visibility = View.GONE
             updateList()
             updateWidgets()
