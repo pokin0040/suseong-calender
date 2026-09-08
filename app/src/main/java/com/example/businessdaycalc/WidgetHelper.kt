@@ -76,9 +76,9 @@ object WidgetHelper {
                 }
             }
 
-            // Click widget to open app
+            // Click widget to open app (open Calculator tab)
             val openIntent = Intent(context, MainActivity::class.java).apply {
-                putExtra("OPEN_TAB", "HOLIDAY")
+                putExtra("OPEN_TAB", "CALC")
             }
             val pendingOpen = PendingIntent.getActivity(
                 context, 0, openIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE

@@ -36,6 +36,8 @@ class MainActivity : AppCompatActivity() {
         val openTab = intent.getStringExtra("OPEN_TAB")
         if (openTab == "HOLIDAY") {
             bottomNavigation.selectedItemId = R.id.nav_holiday
+        } else if (openTab == "CALC") {
+            bottomNavigation.selectedItemId = R.id.nav_calc
         } else {
             // Default tab
             if (savedInstanceState == null) {
