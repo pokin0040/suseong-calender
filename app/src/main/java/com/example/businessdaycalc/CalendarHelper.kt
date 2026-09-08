@@ -169,11 +169,32 @@ class CalendarHelper(private val context: Context) {
         }
     }
 
+    private val LEGAL_HOLIDAY_KEYWORDS = setOf(
+        "신정", "설날", "삼일절", "어린이날", "부처님", "현충일",
+        "광복절", "추석", "개천절", "한글날", "성탄절", "크리스마스",
+        "임시공휴일", "대체공휴일", "국회의원", "대통령", "지방선거", "선거"
+    )
+
+    private fun isLegalHoliday(title: String): Boolean {
+        return LEGAL_HOLIDAY_KEYWORDS.any { title.contains(it) }
+    }
+
     private fun isObservance(title: String, desc: String): Boolean {
-        if (title.contains("이브") || title.contains("eve")) return true
+        // 크리스마스 이브는 "크리스마스" 키워드가 걸리기 전에 "이브"를 먼저 체크하여 예외(true) 처리
+        if (title.contains("이브") || title.contains("eve")) {
+            return true
+        }
+
+        // 법정공휴일 키워드에 포함되면 단순 기념일이 아님 (false 리턴 -> 공휴일 인정)
+        if (isLegalHoliday(title)) {
+            return false
+        }
+
         if (title.contains("어버이") || title.contains("스승") || title.contains("제헌절") || title.contains("국군의 날")) return true
         if (title.contains("발렌타인") || title.contains("화이트데이") || title.contains("만우절")) return true
-        if (desc.contains("observance") || desc.contains("단순 기념일") || desc.contains("쉬지 않는")) return true
-        return false
+
+        return desc.contains("observance", ignoreCase = true)
+                || desc.contains("단순 기념일")
+                || desc.contains("쉬지 않는")
     }
 }
