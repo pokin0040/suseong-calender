@@ -9,48 +9,63 @@
     android:gravity="center_vertical">
 
     <!-- Header Row -->
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
         android:layout_marginBottom="4dp">
 
-        <TextView android:layout_width="52dp" android:layout_height="wrap_content" />
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="배달일"
-            android:textColor="@color/chip_green_text"
-            android:textStyle="bold"
-            android:textSize="11.5sp"
-            android:gravity="center" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text=":"
-            android:visibility="invisible"
-            android:paddingLeft="2dp"
-            android:paddingRight="2dp" />
-
         <LinearLayout
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="0.38"
-            android:gravity="center">
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView android:layout_width="52dp" android:layout_height="wrap_content" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="배달일"
+                android:textColor="@color/chip_green_text"
+                android:textStyle="bold"
+                android:textSize="11.5sp"
+                android:gravity="center" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="보관일"
-                android:textColor="@color/chip_blue_text"
-                android:textStyle="bold"
-                android:textSize="11.5sp" />
+                android:text=":"
+                android:visibility="invisible"
+                android:paddingLeft="2dp"
+                android:paddingRight="2dp" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.38"
+                android:gravity="center">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="보관일"
+                    android:textColor="@color/chip_blue_text"
+                    android:textStyle="bold"
+                    android:textSize="11.5sp" />
+            </LinearLayout>
         </LinearLayout>
-    </LinearLayout>
+
+        <ImageButton
+            android:id="@+id/btnWidgetSettings"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:background="@android:color/transparent"
+            android:src="@drawable/ic_settings"
+            android:contentDescription="위젯 설정" />
+    </RelativeLayout>
 
     <!-- Normal (일반등기) -->
     <LinearLayout
@@ -61,6 +76,7 @@
         android:layout_marginBottom="4dp">
 
         <TextView
+            android:id="@+id/tvTitleNormal"
             android:layout_width="52dp"
             android:layout_height="wrap_content"
             android:text="일반등기"
@@ -173,6 +189,7 @@
         android:gravity="center_vertical">
 
         <TextView
+            android:id="@+id/tvTitleCert"
             android:layout_width="52dp"
             android:layout_height="wrap_content"
             android:text="내용증명"

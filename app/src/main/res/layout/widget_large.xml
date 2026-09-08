@@ -55,15 +55,31 @@
             </LinearLayout>
         </LinearLayout>
 
-        <ImageButton
-            android:id="@+id/btnWidgetRefresh"
-            android:layout_width="22dp"
-            android:layout_height="22dp"
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
-            android:background="@android:color/transparent"
-            android:src="@drawable/ic_refresh"
-            android:contentDescription="새로고침" />
+            android:gravity="center_vertical">
+
+            <ImageButton
+                android:id="@+id/btnWidgetSettings"
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_settings"
+                android:layout_marginEnd="6dp"
+                android:contentDescription="위젯 설정" />
+
+            <ImageButton
+                android:id="@+id/btnWidgetRefresh"
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_refresh"
+                android:contentDescription="새로고침" />
+        </LinearLayout>
     </RelativeLayout>
 
     <!-- Normal (일반등기) -->
@@ -75,6 +91,7 @@
         android:gravity="center_vertical">
 
         <TextView
+            android:id="@+id/tvTitleNormal"
             android:layout_width="52dp"
             android:layout_height="wrap_content"
             android:text="일반등기"
@@ -188,6 +205,7 @@
         android:gravity="center_vertical">
 
         <TextView
+            android:id="@+id/tvTitleCert"
             android:layout_width="52dp"
             android:layout_height="wrap_content"
             android:text="내용증명"
@@ -301,6 +319,7 @@
         android:gravity="center_vertical">
 
         <TextView
+            android:id="@+id/tvTitleCourt"
             android:layout_width="52dp"
             android:layout_height="wrap_content"
             android:text="법원등기"
@@ -414,6 +433,7 @@
         android:gravity="center_vertical">
 
         <TextView
+            android:id="@+id/tvTitleContract"
             android:layout_width="52dp"
             android:layout_height="wrap_content"
             android:text="계약등기"

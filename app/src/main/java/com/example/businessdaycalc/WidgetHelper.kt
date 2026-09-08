@@ -4,6 +4,7 @@ import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.view.View
 import android.widget.RemoteViews
 import java.time.LocalDate
@@ -34,6 +35,18 @@ object WidgetHelper {
 
             val alphaFloat = opacity.coerceIn(10, 100) / 100f
             views.setFloat(R.id.widget_root, "setAlpha", alphaFloat)
+
+            // Open Widget Settings Activity on Gear icon click
+            val configIntent = Intent(context, WidgetConfigureActivity::class.java).apply {
+                putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            }
+            val pendingConfig = PendingIntent.getActivity(
+                context, appWidgetId, configIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+            try {
+                views.setOnClickPendingIntent(R.id.btnWidgetSettings, pendingConfig)
+            } catch (e: Exception) {}
 
             val today = LocalDate.now(ZoneId.systemDefault())
 
@@ -71,12 +84,12 @@ object WidgetHelper {
                 val storageDate = if (setting.useStorage) calculator.addBusinessDays(today, totalStorageSteps) else null
 
                 when (widgetType) {
-                    WidgetType.LARGE, WidgetType.MEDIUM -> bindLargeOrMediumRow(views, type, deliveryDates, storageDate)
-                    WidgetType.SMALL -> bindSmallRow(views, type, deliveryDates, storageDate)
+                    WidgetType.LARGE, WidgetType.MEDIUM -> bindLargeOrMediumRow(views, type, deliveryDates, storageDate, isDark)
+                    WidgetType.SMALL -> bindSmallRow(views, type, deliveryDates, storageDate, isDark)
                 }
             }
 
-            // Click widget to open app (open Calculator tab)
+            // Click widget root to open app (open Calculator tab)
             val openIntent = Intent(context, MainActivity::class.java).apply {
                 putExtra("OPEN_TAB", "CALC")
             }
@@ -91,13 +104,28 @@ object WidgetHelper {
         }
     }
 
-    private fun bindLargeOrMediumRow(views: RemoteViews, type: DeliveryType, deliveryDates: List<LocalDate>, storageDate: LocalDate?) {
+    private fun bindLargeOrMediumRow(views: RemoteViews, type: DeliveryType, deliveryDates: List<LocalDate>, storageDate: LocalDate?, isDark: Boolean) {
         val (del1, dash1, del2, dash2, del3, colon, sto) = when (type) {
             DeliveryType.NORMAL -> Tuple7(R.id.chipNormalDel1, R.id.dashNormalDel1, R.id.chipNormalDel2, R.id.dashNormalDel2, R.id.chipNormalDel3, R.id.colonNormal, R.id.chipNormalSto)
-            DeliveryType.COURT -> Tuple7(R.id.chipCourtDel1, R.id.dashCourtDel1, R.id.chipCourtDel2, R.id.dashCourtDel2, R.id.chipCourtDel3, R.id.colonCourt, R.id.chipCourtSto)
             DeliveryType.CERTIFIED -> Tuple7(R.id.chipCertDel1, R.id.dashCertDel1, R.id.chipCertDel2, R.id.dashCertDel2, R.id.chipCertDel3, R.id.colonCert, R.id.chipCertSto)
+            DeliveryType.COURT -> Tuple7(R.id.chipCourtDel1, R.id.dashCourtDel1, R.id.chipCourtDel2, R.id.dashCourtDel2, R.id.chipCourtDel3, R.id.colonCourt, R.id.chipCourtSto)
             DeliveryType.CONTRACT -> Tuple7(R.id.chipContractDel1, R.id.dashContractDel1, R.id.chipContractDel2, R.id.dashContractDel2, R.id.chipContractDel3, R.id.colonContract, R.id.chipContractSto)
         }
+
+        val titleId = when (type) {
+            DeliveryType.NORMAL -> R.id.tvTitleNormal
+            DeliveryType.CERTIFIED -> R.id.tvTitleCert
+            DeliveryType.COURT -> R.id.tvTitleCourt
+            DeliveryType.CONTRACT -> R.id.tvTitleContract
+        }
+
+        val titleColor = if (isDark) Color.WHITE else Color.parseColor("#333333")
+        val secondaryTextColor = if (isDark) Color.parseColor("#E0E0E0") else Color.parseColor("#777777")
+
+        try { views.setTextColor(titleId, titleColor) } catch (e: Exception) {}
+        try { views.setTextColor(dash1, secondaryTextColor) } catch (e: Exception) {}
+        try { views.setTextColor(dash2, secondaryTextColor) } catch (e: Exception) {}
+        try { views.setTextColor(colon, secondaryTextColor) } catch (e: Exception) {}
 
         // Chip 1
         if (deliveryDates.isNotEmpty()) {
@@ -138,13 +166,26 @@ object WidgetHelper {
         }
     }
 
-    private fun bindSmallRow(views: RemoteViews, type: DeliveryType, deliveryDates: List<LocalDate>, storageDate: LocalDate?) {
+    private fun bindSmallRow(views: RemoteViews, type: DeliveryType, deliveryDates: List<LocalDate>, storageDate: LocalDate?, isDark: Boolean) {
         val (delId, colonId, stoId) = when (type) {
             DeliveryType.NORMAL -> Triple(R.id.chipNormalDel, R.id.colonNormal, R.id.chipNormalSto)
-            DeliveryType.COURT -> Triple(R.id.chipCourtDel, R.id.colonCourt, R.id.chipCourtSto)
             DeliveryType.CERTIFIED -> Triple(R.id.chipCertDel, R.id.colonCert, R.id.chipCertSto)
+            DeliveryType.COURT -> Triple(R.id.chipCourtDel, R.id.colonCourt, R.id.chipCourtSto)
             DeliveryType.CONTRACT -> Triple(R.id.chipContractDel, R.id.colonContract, R.id.chipContractSto)
         }
+
+        val titleId = when (type) {
+            DeliveryType.NORMAL -> R.id.tvTitleNormal
+            DeliveryType.CERTIFIED -> R.id.tvTitleCert
+            DeliveryType.COURT -> R.id.tvTitleCourt
+            DeliveryType.CONTRACT -> R.id.tvTitleContract
+        }
+
+        val titleColor = if (isDark) Color.WHITE else Color.parseColor("#333333")
+        val secondaryTextColor = if (isDark) Color.parseColor("#E0E0E0") else Color.parseColor("#777777")
+
+        try { views.setTextColor(titleId, titleColor) } catch (e: Exception) {}
+        try { views.setTextColor(colonId, secondaryTextColor) } catch (e: Exception) {}
 
         if (deliveryDates.isNotEmpty()) {
             val text = if (deliveryDates.size == 1) {
