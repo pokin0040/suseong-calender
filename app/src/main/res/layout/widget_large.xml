@@ -55,15 +55,31 @@
             </LinearLayout>
         </LinearLayout>
 
-        <ImageButton
-            android:id="@+id/btnWidgetRefresh"
-            android:layout_width="22dp"
-            android:layout_height="22dp"
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
-            android:background="@android:color/transparent"
-            android:src="@drawable/ic_refresh"
-            android:contentDescription="새로고침" />
+            android:gravity="center_vertical">
+
+            <ImageButton
+                android:id="@+id/btnWidgetSettings"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_settings"
+                android:layout_marginEnd="6dp"
+                android:contentDescription="위젯 설정" />
+
+            <ImageButton
+                android:id="@+id/btnWidgetRefresh"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_refresh"
+                android:contentDescription="새로고침" />
+        </LinearLayout>
     </RelativeLayout>
 
     <!-- Normal (일반등기) -->
