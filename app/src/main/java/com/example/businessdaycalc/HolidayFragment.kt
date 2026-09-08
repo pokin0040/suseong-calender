@@ -7,11 +7,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
 import android.widget.GridLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.Spinner
 import android.widget.TextView
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -28,6 +31,10 @@ class HolidayFragment : Fragment() {
     private lateinit var tvEmpty: TextView
     private lateinit var adapter: HolidayAdapter
 
+    private lateinit var spFilterYear: Spinner
+    private lateinit var spFilterMonth: Spinner
+    private lateinit var btnLoadMore: Button
+
     private lateinit var btnAddHoliday: Button
     private lateinit var cardCalendar: LinearLayout
     private lateinit var etHolidayName: EditText
@@ -40,6 +47,8 @@ class HolidayFragment : Fragment() {
     private var pendingSelectedDate: LocalDate = LocalDate.now()
     private var displayYearMonth: YearMonth = YearMonth.now()
 
+    private var displayedLimit = 10
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_holiday, container, false)
     }
@@ -50,6 +59,10 @@ class HolidayFragment : Fragment() {
         holidayManager = HolidayManager(requireContext())
         rvHolidays = view.findViewById(R.id.rvHolidays)
         tvEmpty = view.findViewById(R.id.tvEmpty)
+
+        spFilterYear = view.findViewById(R.id.spFilterYear)
+        spFilterMonth = view.findViewById(R.id.spFilterMonth)
+        btnLoadMore = view.findViewById(R.id.btnLoadMore)
 
         btnAddHoliday = view.findViewById(R.id.btnAddHoliday)
         cardCalendar = view.findViewById(R.id.cardCalendar)
@@ -63,6 +76,7 @@ class HolidayFragment : Fragment() {
         adapter = HolidayAdapter(
             onDelete = { date ->
                 holidayManager.removeHoliday(date)
+                setupFilters()
                 updateList()
                 updateWidgets()
             }
@@ -70,6 +84,8 @@ class HolidayFragment : Fragment() {
 
         rvHolidays.layoutManager = LinearLayoutManager(requireContext())
         rvHolidays.adapter = adapter
+
+        setupFilters()
 
         btnAddHoliday.setOnClickListener {
             hideKeyboard()
@@ -102,11 +118,49 @@ class HolidayFragment : Fragment() {
             val name = etHolidayName.text.toString().trim().ifEmpty { "대체공휴일" }
             holidayManager.addHoliday(CustomHoliday(pendingSelectedDate, name))
             cardCalendar.visibility = View.GONE
+            setupFilters()
             updateList()
             updateWidgets()
         }
 
+        btnLoadMore.setOnClickListener {
+            displayedLimit += 10
+            updateList()
+        }
+
         updateList()
+    }
+
+    private fun setupFilters() {
+        val holidays = holidayManager.getCustomHolidays()
+        val years = mutableListOf("전체 연도")
+        val uniqueYears = holidays.map { it.date.year }.distinct().sorted()
+        uniqueYears.forEach { years.add("${it}년") }
+
+        val yearAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, years).apply {
+            setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        }
+        spFilterYear.adapter = yearAdapter
+
+        val months = mutableListOf("전체 월")
+        for (m in 1..12) {
+            months.add("${m}월")
+        }
+        val monthAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, months).apply {
+            setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        }
+        spFilterMonth.adapter = monthAdapter
+
+        val listener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                displayedLimit = 10
+                updateList()
+            }
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        }
+
+        spFilterYear.onItemSelectedListener = listener
+        spFilterMonth.onItemSelectedListener = listener
     }
 
     private fun hideKeyboard() {
@@ -128,6 +182,8 @@ class HolidayFragment : Fragment() {
 
         for (i in 0 until 42) {
             val date = gridStartDate.plusDays(i.toLong())
+            val isRedDay = isHolidayOrWeekend(date)
+
             val cell = TextView(requireContext()).apply {
                 text = date.dayOfMonth.toString()
                 textSize = 14f
@@ -145,12 +201,15 @@ class HolidayFragment : Fragment() {
                     setTypeface(null, android.graphics.Typeface.BOLD)
                 } else if (date == LocalDate.now()) {
                     setBackgroundResource(R.drawable.bg_day_today)
-                    setTextColor(resources.getColor(R.color.primary, null))
+                    val colorRes = if (isRedDay) R.color.primary else R.color.text_main
+                    setTextColor(resources.getColor(colorRes, null))
                     setTypeface(null, android.graphics.Typeface.BOLD)
                 } else if (date.monthValue != displayYearMonth.monthValue) {
-                    setTextColor(resources.getColor(R.color.divider, null))
+                    val colorRes = if (isRedDay) R.color.text_disabled_red else R.color.text_disabled
+                    setTextColor(resources.getColor(colorRes, null))
                 } else {
-                    setTextColor(resources.getColor(R.color.text_main, null))
+                    val colorRes = if (isRedDay) R.color.primary else R.color.text_main
+                    setTextColor(resources.getColor(colorRes, null))
                 }
 
                 setOnClickListener {
@@ -163,16 +222,55 @@ class HolidayFragment : Fragment() {
         }
     }
 
+    private fun isHolidayOrWeekend(date: LocalDate): Boolean {
+        if (date.dayOfWeek == java.time.DayOfWeek.SATURDAY || date.dayOfWeek == java.time.DayOfWeek.SUNDAY) {
+            return true
+        }
+        val customHolidays = holidayManager.getCustomHolidays().map { it.date }.toSet()
+        if (customHolidays.contains(date)) {
+            return true
+        }
+        if (KoreanHolidays.HOLIDAYS.contains(date)) {
+            return true
+        }
+        return false
+    }
+
     private fun updateList() {
         val holidays = holidayManager.getCustomHolidays()
-        adapter.submitList(holidays)
 
-        if (holidays.isEmpty()) {
+        val selectedYearPos = spFilterYear.selectedItemPosition
+        val selectedMonthPos = spFilterMonth.selectedItemPosition
+
+        val filteredList = holidays.filter { item ->
+            val matchesYear = if (selectedYearPos <= 0) true else {
+                val yearText = spFilterYear.selectedItem as String
+                val year = yearText.replace("년", "").toIntOrNull()
+                item.date.year == year
+            }
+            val matchesMonth = if (selectedMonthPos <= 0) true else {
+                item.date.monthValue == selectedMonthPos
+            }
+            matchesYear && matchesMonth
+        }
+
+        val displayedList = filteredList.take(displayedLimit)
+        adapter.submitList(displayedList)
+
+        if (filteredList.isEmpty()) {
             tvEmpty.visibility = View.VISIBLE
             rvHolidays.visibility = View.GONE
+            btnLoadMore.visibility = View.GONE
         } else {
             tvEmpty.visibility = View.GONE
             rvHolidays.visibility = View.VISIBLE
+
+            if (filteredList.size > displayedList.size) {
+                btnLoadMore.visibility = View.VISIBLE
+                btnLoadMore.text = "+ 더보기 (${displayedList.size} / ${filteredList.size}개)"
+            } else {
+                btnLoadMore.visibility = View.GONE
+            }
         }
     }
 

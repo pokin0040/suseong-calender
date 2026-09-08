@@ -65,6 +65,36 @@
                 style="@style/Widget.MaterialComponents.Button.UnelevatedButton" />
         </RelativeLayout>
 
+        <!-- Filter Row: Year and Month -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:paddingBottom="12dp"
+            android:gravity="center_vertical">
+
+            <Spinner
+                android:id="@+id/spFilterYear"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_edittext"
+                android:paddingLeft="8dp"
+                android:paddingRight="8dp"
+                android:layout_marginEnd="8dp" />
+
+            <Spinner
+                android:id="@+id/spFilterMonth"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_edittext"
+                android:paddingLeft="8dp"
+                android:paddingRight="8dp" />
+        </LinearLayout>
+
         <!-- Custom Calendar Card View for Adding Holiday -->
         <LinearLayout
             android:id="@+id/cardCalendar"
@@ -216,6 +246,22 @@
             android:layout_height="wrap_content"
             android:nestedScrollingEnabled="false"
             android:padding="16dp" />
+
+        <!-- Load More Button -->
+        <Button
+            android:id="@+id/btnLoadMore"
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:text="+ 더보기"
+            android:textColor="@color/primary"
+            android:backgroundTint="#FFEBEE"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginBottom="24dp"
+            android:visibility="gone"
+            style="@style/Widget.MaterialComponents.Button.UnelevatedButton" />
 
     </LinearLayout>
 

@@ -7,6 +7,8 @@
     <color name="secondary">#FFEBEE</color>
     <color name="text_main">#333333</color>
     <color name="text_secondary">#777777</color>
+    <color name="text_disabled">#CCCCCC</color>
+    <color name="text_disabled_red">#EF9A9A</color>
     <color name="chip_green_border">#EF5350</color> <!-- Red chip border -->
     <color name="chip_green_text">#C8102E</color> <!-- Red chip text -->
     <color name="chip_blue_border">#64B5F6</color>

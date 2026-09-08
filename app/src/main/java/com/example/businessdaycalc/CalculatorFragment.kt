@@ -107,6 +107,8 @@ class CalculatorFragment : Fragment() {
 
         for (i in 0 until 42) {
             val date = gridStartDate.plusDays(i.toLong())
+            val isRedDay = isHolidayOrWeekend(date)
+
             val cell = TextView(requireContext()).apply {
                 text = date.dayOfMonth.toString()
                 textSize = 14f
@@ -124,12 +126,15 @@ class CalculatorFragment : Fragment() {
                     setTypeface(null, android.graphics.Typeface.BOLD)
                 } else if (date == LocalDate.now()) {
                     setBackgroundResource(R.drawable.bg_day_today)
-                    setTextColor(resources.getColor(R.color.primary, null))
+                    val colorRes = if (isRedDay) R.color.primary else R.color.text_main
+                    setTextColor(resources.getColor(colorRes, null))
                     setTypeface(null, android.graphics.Typeface.BOLD)
                 } else if (date.monthValue != displayYearMonth.monthValue) {
-                    setTextColor(resources.getColor(R.color.divider, null))
+                    val colorRes = if (isRedDay) R.color.text_disabled_red else R.color.text_disabled
+                    setTextColor(resources.getColor(colorRes, null))
                 } else {
-                    setTextColor(resources.getColor(R.color.text_main, null))
+                    val colorRes = if (isRedDay) R.color.primary else R.color.text_main
+                    setTextColor(resources.getColor(colorRes, null))
                 }
 
                 setOnClickListener {
@@ -141,6 +146,20 @@ class CalculatorFragment : Fragment() {
             }
             gridCalendarDays.addView(cell)
         }
+    }
+
+    private fun isHolidayOrWeekend(date: LocalDate): Boolean {
+        if (date.dayOfWeek == java.time.DayOfWeek.SATURDAY || date.dayOfWeek == java.time.DayOfWeek.SUNDAY) {
+            return true
+        }
+        val customHolidays = holidayManager.getCustomHolidays().map { it.date }.toSet()
+        if (customHolidays.contains(date)) {
+            return true
+        }
+        if (KoreanHolidays.HOLIDAYS.contains(date)) {
+            return true
+        }
+        return false
     }
 
     private fun refreshCalculations() {
