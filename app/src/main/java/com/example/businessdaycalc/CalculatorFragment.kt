@@ -156,7 +156,8 @@ class CalculatorFragment : Fragment() {
         if (customHolidays.contains(date)) {
             return true
         }
-        if (KoreanHolidays.HOLIDAYS.contains(date)) {
+        val deviceHolidays = calendarHelper.getCalendarHolidays(date, date)
+        if (deviceHolidays.contains(date)) {
             return true
         }
         return false

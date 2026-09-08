@@ -12,13 +12,12 @@ import java.time.ZoneId
 
 class CalendarHelper(private val context: Context) {
 
+    /**
+     * 구글 캘린더 및 안드로이드 시스템 캘린더(CalendarContract.Instances)에서 공휴일 이벤트를 수집합니다.
+     */
     fun getCalendarHolidays(startDate: LocalDate, endDate: LocalDate): Set<LocalDate> {
         val holidays = mutableSetOf<LocalDate>()
 
-        // 1. Always include built-in Korean Legal Public Holidays DB as baseline
-        holidays.addAll(KoreanHolidays.HOLIDAYS.filter { !it.isBefore(startDate) && !it.isAfter(endDate) })
-
-        // 2. Query Android System Calendar using Instances API (properly expands recurring annual holidays)
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CALENDAR) == PackageManager.PERMISSION_GRANTED) {
             try {
                 val startMillis = startDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()

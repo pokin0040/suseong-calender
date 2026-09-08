@@ -116,10 +116,13 @@ class HolidayFragment : Fragment() {
         btnConfirmAddHoliday.setOnClickListener {
             hideKeyboard()
 
+            val calendarHelper = CalendarHelper(requireContext())
+            val deviceHolidays = calendarHelper.getCalendarHolidays(pendingSelectedDate, pendingSelectedDate)
+
             // Check if already weekend or public holiday
             if (pendingSelectedDate.dayOfWeek == java.time.DayOfWeek.SATURDAY || 
                 pendingSelectedDate.dayOfWeek == java.time.DayOfWeek.SUNDAY || 
-                KoreanHolidays.HOLIDAYS.contains(pendingSelectedDate)) {
+                deviceHolidays.contains(pendingSelectedDate)) {
                 android.widget.Toast.makeText(requireContext(), "이미 주말 또는 공휴일로 지정되어 있는 날짜입니다.", android.widget.Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
@@ -247,7 +250,9 @@ class HolidayFragment : Fragment() {
         if (customHolidays.contains(date)) {
             return true
         }
-        if (KoreanHolidays.HOLIDAYS.contains(date)) {
+        val calendarHelper = CalendarHelper(requireContext())
+        val deviceHolidays = calendarHelper.getCalendarHolidays(date, date)
+        if (deviceHolidays.contains(date)) {
             return true
         }
         return false
