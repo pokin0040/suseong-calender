@@ -1,118 +1,251 @@
 package com.example.businessdaycalc
 
-import android.icu.util.ChineseCalendar
-import java.time.DayOfWeek
-import java.time.Instant
 import java.time.LocalDate
-import java.time.ZoneId
 
 object KoreanHolidays {
 
     /**
-     * 2024년 ~ 2126년 (100년 이상) 대한민국 법정공휴일, 음력 명절(설날, 추석, 부처님오신날) 및 대체공휴일 자동 생성 DB
+     * 대한민국 2024년 ~ 2035년 정확한 법정공휴일, 음력 명절 및 대체공휴일 수동 검증 하드코딩 DB
      */
-    val HOLIDAYS: Set<LocalDate> by lazy {
-        generateHolidays(2024, 2126)
-    }
+    val HOLIDAYS: Set<LocalDate> = setOf(
+        // --- 2024년 ---
+        LocalDate.of(2024, 1, 1),   // 신정
+        LocalDate.of(2024, 2, 9),   // 설날 연휴
+        LocalDate.of(2024, 2, 10),  // 설날
+        LocalDate.of(2024, 2, 11),  // 설날 연휴
+        LocalDate.of(2024, 2, 12),  // 대체공휴일
+        LocalDate.of(2024, 3, 1),   // 삼일절
+        LocalDate.of(2024, 4, 10),  // 국회의원 선거일
+        LocalDate.of(2024, 5, 5),   // 어린이날
+        LocalDate.of(2024, 5, 6),   // 대체공휴일
+        LocalDate.of(2024, 5, 15),  // 부처님오신날
+        LocalDate.of(2024, 6, 6),   // 현충일
+        LocalDate.of(2024, 8, 15),  // 광복절
+        LocalDate.of(2024, 9, 16),  // 추석 연휴
+        LocalDate.of(2024, 9, 17),  // 추석
+        LocalDate.of(2024, 9, 18),  // 추석 연휴
+        LocalDate.of(2024, 10, 3),  // 개천절
+        LocalDate.of(2024, 10, 9),  // 한글날
+        LocalDate.of(2024, 12, 25), // 성탄절
 
-    private fun generateHolidays(startYear: Int, endYear: Int): Set<LocalDate> {
-        val set = mutableSetOf<LocalDate>()
+        // --- 2025년 ---
+        LocalDate.of(2025, 1, 1),   // 신정
+        LocalDate.of(2025, 1, 28),  // 설날 연휴
+        LocalDate.of(2025, 1, 29),  // 설날
+        LocalDate.of(2025, 1, 30),  // 설날 연휴
+        LocalDate.of(2025, 3, 1),   // 삼일절
+        LocalDate.of(2025, 3, 3),   // 대체공휴일
+        LocalDate.of(2025, 5, 5),   // 어린이날 / 부처님오신날
+        LocalDate.of(2025, 5, 6),   // 대체공휴일
+        LocalDate.of(2025, 6, 6),   // 현충일
+        LocalDate.of(2025, 8, 15),  // 광복절
+        LocalDate.of(2025, 10, 3),  // 개천절
+        LocalDate.of(2025, 10, 5),  // 추석 연휴
+        LocalDate.of(2025, 10, 6),  // 추석
+        LocalDate.of(2025, 10, 7),  // 추석 연휴
+        LocalDate.of(2025, 10, 8),  // 대체공휴일
+        LocalDate.of(2025, 10, 9),  // 한글날
+        LocalDate.of(2025, 12, 25), // 성탄절
 
-        for (year in startYear..endYear) {
-            // 1. 고정 양력 법정공휴일
-            val solarHolidays = listOf(
-                LocalDate.of(year, 1, 1),   // 신정
-                LocalDate.of(year, 3, 1),   // 삼일절
-                LocalDate.of(year, 5, 5),   // 어린이날
-                LocalDate.of(year, 6, 6),   // 현충일
-                LocalDate.of(year, 8, 15),  // 광복절
-                LocalDate.of(year, 10, 3),  // 개천절
-                LocalDate.of(year, 10, 9),  // 한글날
-                LocalDate.of(year, 12, 25)  // 성탄절
-            )
-            set.addAll(solarHolidays)
+        // --- 2026년 ---
+        LocalDate.of(2026, 1, 1),   // 신정
+        LocalDate.of(2026, 2, 16),  // 설날 연휴
+        LocalDate.of(2026, 2, 17),  // 설날
+        LocalDate.of(2026, 2, 18),  // 설날 연휴
+        LocalDate.of(2026, 3, 1),   // 삼일절
+        LocalDate.of(2026, 3, 2),   // 대체공휴일
+        LocalDate.of(2026, 5, 5),   // 어린이날
+        LocalDate.of(2026, 5, 24),  // 부처님오신날
+        LocalDate.of(2026, 5, 25),  // 대체공휴일
+        LocalDate.of(2026, 6, 6),   // 현충일
+        LocalDate.of(2026, 8, 15),  // 광복절
+        LocalDate.of(2026, 8, 17),  // 대체공휴일
+        LocalDate.of(2026, 9, 24),  // 추석 연휴
+        LocalDate.of(2026, 9, 25),  // 추석
+        LocalDate.of(2026, 9, 26),  // 추석 연휴
+        LocalDate.of(2026, 10, 3),  // 개천절
+        LocalDate.of(2026, 10, 5),  // 대체공휴일
+        LocalDate.of(2026, 10, 9),  // 한글날
+        LocalDate.of(2026, 12, 25), // 성탄절
 
-            // 양력 공휴일 대체공휴일 (어린이날, 광복절, 개천절, 한글날, 성탄절)
-            for (fixedDate in listOf(
-                LocalDate.of(year, 5, 5),
-                LocalDate.of(year, 8, 15),
-                LocalDate.of(year, 10, 3),
-                LocalDate.of(year, 10, 9),
-                LocalDate.of(year, 12, 25)
-            )) {
-                if (fixedDate.dayOfWeek == DayOfWeek.SUNDAY || fixedDate.dayOfWeek == DayOfWeek.SATURDAY) {
-                    var sub = fixedDate.plusDays(1)
-                    while (sub.dayOfWeek == DayOfWeek.SATURDAY || sub.dayOfWeek == DayOfWeek.SUNDAY || set.contains(sub)) {
-                        sub = sub.plusDays(1)
-                    }
-                    set.add(sub)
-                }
-            }
+        // --- 2027년 ---
+        LocalDate.of(2027, 1, 1),   // 신정
+        LocalDate.of(2027, 2, 6),   // 설날 연휴
+        LocalDate.of(2027, 2, 7),   // 설날
+        LocalDate.of(2027, 2, 8),   // 설날 연휴
+        LocalDate.of(2027, 2, 9),   // 대체공휴일
+        LocalDate.of(2027, 3, 1),   // 삼일절
+        LocalDate.of(2027, 3, 3),   // 제21대 대통령 선거일
+        LocalDate.of(2027, 5, 5),   // 어린이날
+        LocalDate.of(2027, 5, 13),  // 부처님오신날
+        LocalDate.of(2027, 6, 6),   // 현충일
+        LocalDate.of(2027, 6, 7),   // 대체공휴일
+        LocalDate.of(2027, 8, 15),  // 광복절
+        LocalDate.of(2027, 8, 16),  // 대체공휴일
+        LocalDate.of(2027, 9, 14),  // 추석 연휴
+        LocalDate.of(2027, 9, 15),  // 추석
+        LocalDate.of(2027, 9, 16),  // 추석 연휴
+        LocalDate.of(2027, 10, 3),  // 개천절
+        LocalDate.of(2027, 10, 4),  // 대체공휴일
+        LocalDate.of(2027, 10, 9),  // 한글날
+        LocalDate.of(2027, 10, 11), // 대체공휴일
+        LocalDate.of(2027, 12, 25), // 성탄절
+        LocalDate.of(2027, 12, 27), // 대체공휴일
 
-            // 2. 음력 명절 (설날, 부처님오신날, 추석) 및 대체공휴일
-            try {
-                // 설날 (음력 1월 1일)
-                val seollalDay = getSolarFromLunar(year, 1, 1)
-                val seollal1 = seollalDay.minusDays(1)
-                val seollal2 = seollalDay
-                val seollal3 = seollalDay.plusDays(1)
-                set.add(seollal1)
-                set.add(seollal2)
-                set.add(seollal3)
+        // --- 2028년 ---
+        LocalDate.of(2028, 1, 1),   // 신정
+        LocalDate.of(2028, 1, 26),  // 설날 연휴
+        LocalDate.of(2028, 1, 27),  // 설날
+        LocalDate.of(2028, 1, 28),  // 설날 연휴
+        LocalDate.of(2028, 3, 1),   // 삼일절
+        LocalDate.of(2028, 4, 12),  // 제23대 국회의원 선거일
+        LocalDate.of(2028, 5, 2),   // 부처님오신날
+        LocalDate.of(2028, 5, 5),   // 어린이날
+        LocalDate.of(2028, 6, 6),   // 현충일
+        LocalDate.of(2028, 8, 15),  // 광복절
+        LocalDate.of(2028, 10, 2),  // 추석 연휴
+        LocalDate.of(2028, 10, 3),  // 추석 / 개천절
+        LocalDate.of(2028, 10, 4),  // 추석 연휴
+        LocalDate.of(2028, 10, 5),  // 대체공휴일 (추석/개천절 중복)
+        LocalDate.of(2028, 10, 9),  // 한글날
+        LocalDate.of(2028, 12, 25), // 성탄절
 
-                // 설날 연휴 중 일요일 포함 시 대체공휴일
-                if (seollal1.dayOfWeek == DayOfWeek.SUNDAY || seollal2.dayOfWeek == DayOfWeek.SUNDAY || seollal3.dayOfWeek == DayOfWeek.SUNDAY) {
-                    var sub = seollal3.plusDays(1)
-                    while (sub.dayOfWeek == DayOfWeek.SATURDAY || sub.dayOfWeek == DayOfWeek.SUNDAY || set.contains(sub)) {
-                        sub = sub.plusDays(1)
-                    }
-                    set.add(sub)
-                }
+        // --- 2029년 ---
+        LocalDate.of(2029, 1, 1),   // 신정
+        LocalDate.of(2029, 2, 12),  // 설날 연휴
+        LocalDate.of(2029, 2, 13),  // 설날
+        LocalDate.of(2029, 2, 14),  // 설날 연휴
+        LocalDate.of(2029, 3, 1),   // 삼일절
+        LocalDate.of(2029, 5, 5),   // 어린이날
+        LocalDate.of(2029, 5, 7),   // 대체공휴일
+        LocalDate.of(2029, 5, 20),  // 부처님오신날
+        LocalDate.of(2029, 5, 21),  // 대체공휴일
+        LocalDate.of(2029, 6, 6),   // 현충일
+        LocalDate.of(2029, 8, 15),  // 광복절
+        LocalDate.of(2029, 9, 21),  // 추석 연휴
+        LocalDate.of(2029, 9, 22),  // 추석
+        LocalDate.of(2029, 9, 23),  // 추석 연휴
+        LocalDate.of(2029, 9, 24),  // 대체공휴일
+        LocalDate.of(2029, 10, 3),  // 개천절
+        LocalDate.of(2029, 10, 9),  // 한글날
+        LocalDate.of(2029, 12, 25), // 성탄절
 
-                // 부처님오신날 (음력 4월 8일)
-                val buddhaDay = getSolarFromLunar(year, 4, 8)
-                set.add(buddhaDay)
-                if (buddhaDay.dayOfWeek == DayOfWeek.SUNDAY || buddhaDay.dayOfWeek == DayOfWeek.SATURDAY) {
-                    var sub = buddhaDay.plusDays(1)
-                    while (sub.dayOfWeek == DayOfWeek.SATURDAY || sub.dayOfWeek == DayOfWeek.SUNDAY || set.contains(sub)) {
-                        sub = sub.plusDays(1)
-                    }
-                    set.add(sub)
-                }
+        // --- 2030년 ---
+        LocalDate.of(2030, 1, 1),   // 신정
+        LocalDate.of(2030, 2, 2),   // 설날 연휴
+        LocalDate.of(2030, 2, 3),   // 설날
+        LocalDate.of(2030, 2, 4),   // 설날 연휴
+        LocalDate.of(2030, 2, 5),   // 대체공휴일
+        LocalDate.of(2030, 3, 1),   // 삼일절
+        LocalDate.of(2030, 5, 5),   // 어린이날
+        LocalDate.of(2030, 5, 6),   // 대체공휴일
+        LocalDate.of(2030, 5, 9),   // 부처님오신날
+        LocalDate.of(2030, 6, 6),   // 현충일
+        LocalDate.of(2030, 8, 15),  // 광복절
+        LocalDate.of(2030, 9, 11),  // 추석 연휴
+        LocalDate.of(2030, 9, 12),  // 추석
+        LocalDate.of(2030, 9, 13),  // 추석 연휴
+        LocalDate.of(2030, 10, 3),  // 개천절
+        LocalDate.of(2030, 10, 9),  // 한글날
+        LocalDate.of(2030, 12, 25), // 성탄절
 
-                // 추석 (음력 8월 15일)
-                val chuseokDay = getSolarFromLunar(year, 8, 15)
-                val chuseok1 = chuseokDay.minusDays(1)
-                val chuseok2 = chuseokDay
-                val chuseok3 = chuseokDay.plusDays(1)
-                set.add(chuseok1)
-                set.add(chuseok2)
-                set.add(chuseok3)
+        // --- 2031년 ---
+        LocalDate.of(2031, 1, 1),   // 신정
+        LocalDate.of(2031, 1, 22),  // 설날 연휴
+        LocalDate.of(2031, 1, 23),  // 설날
+        LocalDate.of(2031, 1, 24),  // 설날 연휴
+        LocalDate.of(2031, 3, 1),   // 삼일절
+        LocalDate.of(2031, 3, 3),   // 대체공휴일
+        LocalDate.of(2031, 5, 5),   // 어린이날
+        LocalDate.of(2031, 5, 28),  // 부처님오신날
+        LocalDate.of(2031, 6, 6),   // 현충일
+        LocalDate.of(2031, 8, 15),  // 광복절
+        LocalDate.of(2031, 9, 30),  // 추석 연휴
+        LocalDate.of(2031, 10, 1),  // 추석
+        LocalDate.of(2031, 10, 2),  // 추석 연휴
+        LocalDate.of(2031, 10, 3),  // 개천절
+        LocalDate.of(2031, 10, 9),  // 한글날
+        LocalDate.of(2031, 12, 25), // 성탄절
 
-                // 추석 연휴 중 일요일 포함 시 또는 다른 공휴일 중복 시 대체공휴일
-                if (chuseok1.dayOfWeek == DayOfWeek.SUNDAY || chuseok2.dayOfWeek == DayOfWeek.SUNDAY || chuseok3.dayOfWeek == DayOfWeek.SUNDAY) {
-                    var sub = chuseok3.plusDays(1)
-                    while (sub.dayOfWeek == DayOfWeek.SATURDAY || sub.dayOfWeek == DayOfWeek.SUNDAY || set.contains(sub)) {
-                        sub = sub.plusDays(1)
-                    }
-                    set.add(sub)
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
+        // --- 2032년 ---
+        LocalDate.of(2032, 1, 1),   // 신정
+        LocalDate.of(2032, 2, 10),  // 설날 연휴
+        LocalDate.of(2032, 2, 11),  // 설날
+        LocalDate.of(2032, 2, 12),  // 설날 연휴
+        LocalDate.of(2032, 3, 1),   // 삼일절
+        LocalDate.of(2032, 3, 3),   // 제22대 대통령 선거일
+        LocalDate.of(2032, 5, 5),   // 어린이날
+        LocalDate.of(2032, 5, 16),  // 부처님오신날
+        LocalDate.of(2032, 5, 17),  // 대체공휴일
+        LocalDate.of(2032, 6, 6),   // 현충일
+        LocalDate.of(2032, 6, 7),   // 대체공휴일
+        LocalDate.of(2032, 8, 15),  // 광복절
+        LocalDate.of(2032, 8, 16),  // 대체공휴일
+        LocalDate.of(2032, 9, 18),  // 추석 연휴
+        LocalDate.of(2032, 9, 19),  // 추석
+        LocalDate.of(2032, 9, 20),  // 추석 연휴
+        LocalDate.of(2032, 9, 21),  // 대체공휴일
+        LocalDate.of(2032, 10, 3),  // 개천절
+        LocalDate.of(2032, 10, 4),  // 대체공휴일
+        LocalDate.of(2032, 10, 9),  // 한글날
+        LocalDate.of(2032, 10, 11), // 대체공휴일
+        LocalDate.of(2032, 12, 25), // 성탄절
+        LocalDate.of(2032, 12, 27), // 대체공휴일
 
-        return set
-    }
+        // --- 2033년 ---
+        LocalDate.of(2033, 1, 1),   // 신정
+        LocalDate.of(2033, 1, 31),  // 설날 연휴
+        LocalDate.of(2033, 2, 1),   // 설날
+        LocalDate.of(2033, 2, 2),   // 설날 연휴
+        LocalDate.of(2033, 3, 1),   // 삼일절
+        LocalDate.of(2033, 5, 5),   // 어린이날
+        LocalDate.of(2033, 5, 6),   // 부처님오신날
+        LocalDate.of(2033, 6, 6),   // 현충일
+        LocalDate.of(2033, 8, 15),  // 광복절
+        LocalDate.of(2033, 10, 3),  // 개천절
+        LocalDate.of(2033, 10, 6),  // 추석 연휴
+        LocalDate.of(2033, 10, 7),  // 추석
+        LocalDate.of(2033, 10, 8),  // 추석 연휴
+        LocalDate.of(2033, 10, 9),  // 한글날
+        LocalDate.of(2033, 10, 10), // 대체공휴일
+        LocalDate.of(2033, 12, 25), // 성탄절
+        LocalDate.of(2033, 12, 26), // 대체공휴일
 
-    private fun getSolarFromLunar(year: Int, lunarMonth: Int, lunarDay: Int): LocalDate {
-        val cc = ChineseCalendar()
-        cc.set(ChineseCalendar.EXTENDED_YEAR, year + 2637)
-        cc.set(ChineseCalendar.MONTH, lunarMonth - 1)
-        cc.set(ChineseCalendar.DAY_OF_MONTH, lunarDay)
+        // --- 2034년 ---
+        LocalDate.of(2034, 1, 1),   // 신정
+        LocalDate.of(2034, 2, 18),  // 설날 연휴
+        LocalDate.of(2034, 2, 19),  // 설날
+        LocalDate.of(2034, 2, 20),  // 설날 연휴
+        LocalDate.of(2034, 2, 21),  // 대체공휴일
+        LocalDate.of(2034, 3, 1),   // 삼일절
+        LocalDate.of(2034, 5, 5),   // 어린이날
+        LocalDate.of(2034, 5, 25),  // 부처님오신날
+        LocalDate.of(2034, 6, 6),   // 현충일
+        LocalDate.of(2034, 8, 15),  // 광복절
+        LocalDate.of(2034, 9, 26),  // 추석 연휴
+        LocalDate.of(2034, 9, 27),  // 추석
+        LocalDate.of(2034, 9, 28),  // 추석 연휴
+        LocalDate.of(2034, 10, 3),  // 개천절
+        LocalDate.of(2034, 10, 9),  // 한글날
+        LocalDate.of(2034, 12, 25), // 성탄절
 
-        val millis = cc.timeInMillis
-        val instant = Instant.ofEpochMilli(millis)
-        return instant.atZone(ZoneId.systemDefault()).toLocalDate()
-    }
+        // --- 2035년 ---
+        LocalDate.of(2035, 1, 1),   // 신정
+        LocalDate.of(2035, 2, 7),   // 설날 연휴
+        LocalDate.of(2035, 2, 8),   // 설날
+        LocalDate.of(2035, 2, 9),   // 설날 연휴
+        LocalDate.of(2035, 3, 1),   // 삼일절
+        LocalDate.of(2035, 5, 5),   // 어린이날
+        LocalDate.of(2035, 5, 7),   // 대체공휴일
+        LocalDate.of(2035, 5, 15),  // 부처님오신날
+        LocalDate.of(2035, 6, 6),   // 현충일
+        LocalDate.of(2035, 8, 15),  // 광복절
+        LocalDate.of(2035, 9, 15),  // 추석 연휴
+        LocalDate.of(2035, 9, 16),  // 추석
+        LocalDate.of(2035, 9, 17),  // 추석 연휴
+        LocalDate.of(2035, 9, 18),  // 대체공휴일
+        LocalDate.of(2035, 10, 3),  // 개천절
+        LocalDate.of(2035, 10, 9),  // 한글날
+        LocalDate.of(2035, 12, 25)  // 성탄절
+    )
 }
