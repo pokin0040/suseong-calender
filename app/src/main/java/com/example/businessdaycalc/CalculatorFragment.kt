@@ -1,5 +1,7 @@
 package com.example.businessdaycalc
 
+import android.app.DatePickerDialog
+import android.graphics.Paint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -18,6 +20,12 @@ class CalculatorFragment : Fragment() {
     private lateinit var holidayManager: HolidayManager
     private lateinit var calendarHelper: CalendarHelper
 
+    private lateinit var tvSelectCustomDate: TextView
+    private lateinit var tvBaseDateLabel: TextView
+    private lateinit var tvDesc: TextView
+
+    private var selectedBaseDate: LocalDate? = null
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_calculator, container, false)
     }
@@ -26,35 +34,70 @@ class CalculatorFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         
         calcContainer = view.findViewById(R.id.calcContainer)
+        tvSelectCustomDate = view.findViewById(R.id.tvSelectCustomDate)
+        tvBaseDateLabel = view.findViewById(R.id.tvBaseDateLabel)
+        tvDesc = view.findViewById(R.id.tvDesc)
+
         settingsManager = SettingsManager(requireContext())
         holidayManager = HolidayManager(requireContext())
         calendarHelper = CalendarHelper(requireContext())
 
+        // Underline "다른날짜 배달일 계산"
+        tvSelectCustomDate.paintFlags = tvSelectCustomDate.paintFlags or Paint.UNDERLINE_TEXT_FLAG
+        tvSelectCustomDate.setOnClickListener {
+            showDatePicker()
+        }
+
         view.findViewById<Button>(R.id.btnRefresh).setOnClickListener {
+            selectedBaseDate = null
             refreshCalculations()
         }
 
         refreshCalculations()
     }
 
+    private fun showDatePicker() {
+        val currentBase = selectedBaseDate ?: LocalDate.now()
+        DatePickerDialog(
+            requireContext(),
+            { _, year, month, dayOfMonth ->
+                selectedBaseDate = LocalDate.of(year, month + 1, dayOfMonth)
+                refreshCalculations()
+            },
+            currentBase.year,
+            currentBase.monthValue - 1,
+            currentBase.dayOfMonth
+        ).show()
+    }
+
     private fun refreshCalculations() {
         // Remove old dynamic rows
         val childCount = calcContainer.childCount
-        // Keep header (idx 0, 1) and footer (last)
-        if (childCount > 3) {
-            calcContainer.removeViews(2, childCount - 3)
+        // Keep link (0), table header (1), divider (2) and note (last)
+        if (childCount > 4) {
+            calcContainer.removeViews(3, childCount - 4)
         }
 
-        val today = LocalDate.now()
+        val baseDate = selectedBaseDate ?: LocalDate.now()
+
+        if (selectedBaseDate != null) {
+            val dayStr = baseDate.dayOfMonth.toString().padStart(2, '0')
+            tvBaseDateLabel.text = "${baseDate.year}년 ${baseDate.monthValue}월 ${dayStr}일"
+            tvDesc.text = "${baseDate.year}년 ${baseDate.monthValue}월 ${dayStr}일 기준으로 계산됩니다."
+        } else {
+            tvBaseDateLabel.text = ""
+            tvDesc.text = "오늘 날짜 기준으로 계산됩니다."
+        }
+
         val customHolidays = holidayManager.getCustomHolidays().map { it.date }.toSet()
-        val deviceHolidays = calendarHelper.getCalendarHolidays(today, today.plusDays(30))
+        val deviceHolidays = calendarHelper.getCalendarHolidays(baseDate, baseDate.plusDays(30))
         val calculator = BusinessDayCalculator(customHolidays, deviceHolidays)
 
         val settings = settingsManager.getAllSettings()
 
-        var insertIndex = 2
+        var insertIndex = 3
         for (setting in settings) {
-            val row = buildRow(setting, today, calculator)
+            val row = buildRow(setting, baseDate, calculator)
             calcContainer.addView(row, insertIndex)
             insertIndex++
             
@@ -67,7 +110,7 @@ class CalculatorFragment : Fragment() {
         }
     }
 
-    private fun buildRow(setting: DeliverySetting, today: LocalDate, calculator: BusinessDayCalculator): View {
+    private fun buildRow(setting: DeliverySetting, baseDate: LocalDate, calculator: BusinessDayCalculator): View {
         val context = requireContext()
         val row = LinearLayout(context).apply {
             orientation = LinearLayout.HORIZONTAL
@@ -91,7 +134,7 @@ class CalculatorFragment : Fragment() {
             layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
         }
         
-        val deliveryDates = calculator.calculateDeliveryDates(today, setting.deliverySteps)
+        val deliveryDates = calculator.calculateDeliveryDates(baseDate, setting.deliverySteps)
         deliveryDates.forEachIndexed { index, date ->
             val tv = TextView(context).apply {
                 text = formatDate(date)
@@ -131,7 +174,7 @@ class CalculatorFragment : Fragment() {
             }
             storageContainer.addView(colon)
 
-            val storageDate = calculator.addBusinessDays(today, setting.storageSteps)
+            val storageDate = calculator.addBusinessDays(baseDate, setting.storageSteps)
             val tv = TextView(context).apply {
                 text = formatDate(storageDate)
                 setBackgroundResource(R.drawable.chip_blue)
