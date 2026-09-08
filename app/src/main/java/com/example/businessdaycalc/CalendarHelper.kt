@@ -13,6 +13,12 @@ import java.time.LocalDate
 import java.time.ZoneId
 import java.time.ZoneOffset
 
+data class CalendarEventDetail(
+    val title: String,
+    val availability: Int,
+    val isPublicHoliday: Boolean
+)
+
 class CalendarHelper(private val context: Context) {
 
     companion object {
@@ -21,7 +27,7 @@ class CalendarHelper(private val context: Context) {
         private val LEGAL_HOLIDAY_KEYWORDS = setOf(
             "신정", "설날", "삼일절", "어린이날", "부처님", "현충일",
             "광복절", "추석", "개천절", "한글날", "성탄절", "크리스마스",
-            "임시공휴일", "대체공휴일"
+            "임시공휴일", "대체공휴일", "새해첫날", "부처님오신날"
         )
 
         /**
@@ -29,15 +35,15 @@ class CalendarHelper(private val context: Context) {
          * (크리스마스이브 같은 단순 기념일은 FREE(1)로 등록되어 여기서 걸러짐)
          * availability 정보가 없거나 애매한 경우엔 법정공휴일 키워드로 폴백합니다.
          */
-        private fun isPublicHoliday(title: String, availability: Int): Boolean {
+        fun isPublicHoliday(title: String, availability: Int): Boolean {
             if (availability == CalendarContract.Instances.AVAILABILITY_BUSY) return true
-            return LEGAL_HOLIDAY_KEYWORDS.any { title.contains(it) } || title.contains("선거일")
+            return LEGAL_HOLIDAY_KEYWORDS.any { title.contains(it) } || title.contains("선거일") || title.contains("쉬는 날")
         }
 
         /**
          * "설날" / "추석" 날짜의 바로 앞/뒤가 평일(월~금)인 경우에만 공휴일로 추가합니다.
          */
-        private fun expandSeollalChuseokHolidays(
+        fun expandSeollalChuseokHolidays(
             holidays: Set<LocalDate>,
             seollalChuseokDates: Set<LocalDate>
         ): Set<LocalDate> {
@@ -60,7 +66,7 @@ class CalendarHelper(private val context: Context) {
     private data class HolidaySource(val calendarId: Long, val accountType: String)
 
     /**
-     * 기기에 등록된 캘린더 중 "공휴일" 캘린더만 골라냅니다. (구글 / 삼성 로컬 구분용)
+     * 기기에 등록된 캘린더 중 "공휴일" 캘린더만 골라냅니다.
      */
     private fun findHolidayCalendarSources(): List<HolidaySource> {
         val sources = mutableListOf<HolidaySource>()
@@ -103,8 +109,163 @@ class CalendarHelper(private val context: Context) {
     }
 
     /**
-     * 구글 계정(com.google)의 공휴일 캘린더를 우선 사용하고,
-     * 구글 공휴일 캘린더가 기기에 아예 없는 경우에만 삼성 로컬(LOCAL) 공휴일 캘린더를 사용합니다.
+     * 특정 날짜의 캘린더 이벤트 상세 정보(제목, availability, 공휴일 인정 여부)를 가져옵니다.
+     */
+    fun getEventDetailsForDate(date: LocalDate): List<CalendarEventDetail> {
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CALENDAR) != PackageManager.PERMISSION_GRANTED) {
+            return emptyList()
+        }
+
+        val targetSources = findHolidayCalendarSources()
+        if (targetSources.isEmpty()) return emptyList()
+
+        val calendarIds = targetSources.map { it.calendarId }
+        val details = mutableListOf<CalendarEventDetail>()
+
+        try {
+            val startMillis = date.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli()
+            val endMillis = date.plusDays(1).atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli()
+
+            val builder = CalendarContract.Instances.CONTENT_URI.buildUpon()
+            ContentUris.appendId(builder, startMillis)
+            ContentUris.appendId(builder, endMillis)
+
+            val projection = arrayOf(
+                CalendarContract.Instances.BEGIN,
+                CalendarContract.Instances.ALL_DAY,
+                CalendarContract.Instances.TITLE,
+                CalendarContract.Instances.AVAILABILITY
+            )
+
+            val placeholders = calendarIds.joinToString(",") { "?" }
+            val selection = "${CalendarContract.Instances.CALENDAR_ID} IN ($placeholders)"
+            val selectionArgs = calendarIds.map { it.toString() }.toTypedArray()
+
+            context.contentResolver.query(
+                builder.build(),
+                projection,
+                selection,
+                selectionArgs,
+                null
+            )?.use { c ->
+                val beginIdx = c.getColumnIndexOrThrow(CalendarContract.Instances.BEGIN)
+                val allDayIdx = c.getColumnIndexOrThrow(CalendarContract.Instances.ALL_DAY)
+                val titleIdx = c.getColumnIndexOrThrow(CalendarContract.Instances.TITLE)
+                val availIdx = c.getColumnIndex(CalendarContract.Instances.AVAILABILITY)
+
+                while (c.moveToNext()) {
+                    val isAllDay = c.getInt(allDayIdx) == 1
+                    val title = c.getString(titleIdx) ?: ""
+                    val availability = if (availIdx >= 0) c.getInt(availIdx) else -1
+
+                    val dtStart = c.getLong(beginIdx)
+                    val eventDate = if (isAllDay) {
+                        Instant.ofEpochMilli(dtStart).atZone(ZoneOffset.UTC).toLocalDate()
+                    } else {
+                        Instant.ofEpochMilli(dtStart).atZone(ZoneId.systemDefault()).toLocalDate()
+                    }
+
+                    if (eventDate == date) {
+                        details.add(CalendarEventDetail(title, availability, isPublicHoliday(title, availability)))
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "이벤트 상세 조회 실패", e)
+        }
+
+        return details
+    }
+
+    /**
+     * 특정 날짜 범위 내의 법정 공휴일 목록(날짜 및 이름)을 가져옵니다.
+     */
+    fun getPublicHolidaysWithNames(startDate: LocalDate, endDate: LocalDate): List<CustomHoliday> {
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CALENDAR) != PackageManager.PERMISSION_GRANTED) {
+            return emptyList()
+        }
+
+        val targetSources = findHolidayCalendarSources()
+        if (targetSources.isEmpty()) return emptyList()
+
+        val calendarIds = targetSources.map { it.calendarId }
+        val rawHolidaysMap = mutableMapOf<LocalDate, String>()
+        val seollalChuseokDates = mutableSetOf<LocalDate>()
+
+        try {
+            val queryStartDate = startDate.minusDays(3)
+            val queryEndDate = endDate.plusDays(3)
+
+            val startMillis = queryStartDate.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli()
+            val endMillis = queryEndDate.plusDays(1).atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli()
+
+            val builder = CalendarContract.Instances.CONTENT_URI.buildUpon()
+            ContentUris.appendId(builder, startMillis)
+            ContentUris.appendId(builder, endMillis)
+
+            val projection = arrayOf(
+                CalendarContract.Instances.BEGIN,
+                CalendarContract.Instances.ALL_DAY,
+                CalendarContract.Instances.TITLE,
+                CalendarContract.Instances.AVAILABILITY
+            )
+
+            val placeholders = calendarIds.joinToString(",") { "?" }
+            val selection = "${CalendarContract.Instances.CALENDAR_ID} IN ($placeholders)"
+            val selectionArgs = calendarIds.map { it.toString() }.toTypedArray()
+
+            context.contentResolver.query(
+                builder.build(),
+                projection,
+                selection,
+                selectionArgs,
+                null
+            )?.use { c ->
+                val beginIdx = c.getColumnIndexOrThrow(CalendarContract.Instances.BEGIN)
+                val allDayIdx = c.getColumnIndexOrThrow(CalendarContract.Instances.ALL_DAY)
+                val titleIdx = c.getColumnIndexOrThrow(CalendarContract.Instances.TITLE)
+                val availIdx = c.getColumnIndex(CalendarContract.Instances.AVAILABILITY)
+
+                while (c.moveToNext()) {
+                    val isAllDay = c.getInt(allDayIdx) == 1
+                    val title = c.getString(titleIdx) ?: ""
+                    val availability = if (availIdx >= 0) c.getInt(availIdx) else -1
+
+                    if (!isPublicHoliday(title, availability)) continue
+
+                    val dtStart = c.getLong(beginIdx)
+                    val date = if (isAllDay) {
+                        Instant.ofEpochMilli(dtStart).atZone(ZoneOffset.UTC).toLocalDate()
+                    } else {
+                        Instant.ofEpochMilli(dtStart).atZone(ZoneId.systemDefault()).toLocalDate()
+                    }
+
+                    rawHolidaysMap[date] = title.ifEmpty { "공휴일" }
+                    if (title == "설날" || title == "추석") {
+                        seollalChuseokDates.add(date)
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "공휴일 이름 목록 조회 실패", e)
+            return emptyList()
+        }
+
+        val expandedDates = expandSeollalChuseokHolidays(rawHolidaysMap.keys, seollalChuseokDates)
+
+        val resultList = mutableListOf<CustomHoliday>()
+        for (date in expandedDates) {
+            if (!date.isBefore(startDate) && !date.isAfter(endDate)) {
+                val name = rawHolidaysMap[date] ?: "공휴일 연휴"
+                resultList.add(CustomHoliday(date, name))
+            }
+        }
+
+        return resultList.sortedBy { it.date }
+    }
+
+    /**
+     * 기기에 등록된 공휴일 캘린더에서 공휴일 날짜 집합을 가져옵니다.
      */
     fun getCalendarHolidays(startDate: LocalDate, endDate: LocalDate): Set<LocalDate> {
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CALENDAR) != PackageManager.PERMISSION_GRANTED) {
@@ -112,18 +273,7 @@ class CalendarHelper(private val context: Context) {
             return emptySet()
         }
 
-        val allSources = findHolidayCalendarSources()
-        val googleSources = allSources.filter { it.accountType.equals("com.google", ignoreCase = true) }
-
-        val targetSources = if (googleSources.isNotEmpty()) {
-            Log.d(TAG, "구글 공휴일 캘린더 사용 (${googleSources.size}개)")
-            googleSources
-        } else {
-            val localSources = allSources.filter { it.accountType.equals("LOCAL", ignoreCase = true) }
-            Log.d(TAG, "구글 공휴일 캘린더 없음 → 삼성 로컬 공휴일 캘린더 사용 (${localSources.size}개)")
-            localSources
-        }
-
+        val targetSources = findHolidayCalendarSources()
         if (targetSources.isEmpty()) {
             Log.w(TAG, "사용 가능한 공휴일 캘린더가 없습니다.")
             return emptySet()
@@ -153,7 +303,6 @@ class CalendarHelper(private val context: Context) {
                 CalendarContract.Instances.CALENDAR_ID
             )
 
-            // 앞서 선택한 캘린더(구글 or 삼성) ID에 속한 이벤트만 조회
             val placeholders = calendarIds.joinToString(",") { "?" }
             val selection = "${CalendarContract.Instances.CALENDAR_ID} IN ($placeholders)"
             val selectionArgs = calendarIds.map { it.toString() }.toTypedArray()

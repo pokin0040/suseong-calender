@@ -10,6 +10,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Button
+import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.GridLayout
 import android.widget.ImageView
@@ -18,22 +19,25 @@ import android.widget.Spinner
 import android.widget.TextView
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 
+data class HolidayItem(
+    val date: LocalDate,
+    val name: String,
+    val isCustom: Boolean
+)
+
 class HolidayFragment : Fragment() {
 
     private lateinit var holidayManager: HolidayManager
-    private lateinit var rvHolidays: RecyclerView
+    private lateinit var llHolidaysContainer: LinearLayout
     private lateinit var tvEmpty: TextView
-    private lateinit var adapter: HolidayAdapter
 
+    private lateinit var cbOnlyCustom: CheckBox
     private lateinit var spFilterYear: Spinner
     private lateinit var spFilterMonth: Spinner
-    private lateinit var btnLoadMore: Button
 
     private lateinit var btnAddHoliday: Button
     private lateinit var cardCalendar: LinearLayout
@@ -47,8 +51,6 @@ class HolidayFragment : Fragment() {
     private var pendingSelectedDate: LocalDate = LocalDate.now()
     private var displayYearMonth: YearMonth = YearMonth.now()
 
-    private var displayedLimit = 10
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_holiday, container, false)
     }
@@ -57,12 +59,12 @@ class HolidayFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         holidayManager = HolidayManager(requireContext())
-        rvHolidays = view.findViewById(R.id.rvHolidays)
+        llHolidaysContainer = view.findViewById(R.id.llHolidaysContainer)
         tvEmpty = view.findViewById(R.id.tvEmpty)
 
+        cbOnlyCustom = view.findViewById(R.id.cbOnlyCustom)
         spFilterYear = view.findViewById(R.id.spFilterYear)
         spFilterMonth = view.findViewById(R.id.spFilterMonth)
-        btnLoadMore = view.findViewById(R.id.btnLoadMore)
 
         btnAddHoliday = view.findViewById(R.id.btnAddHoliday)
         cardCalendar = view.findViewById(R.id.cardCalendar)
@@ -73,17 +75,10 @@ class HolidayFragment : Fragment() {
         gridCalendarDays = view.findViewById(R.id.gridCalendarDays)
         btnConfirmAddHoliday = view.findViewById(R.id.btnConfirmAddHoliday)
 
-        adapter = HolidayAdapter(
-            onDelete = { date ->
-                holidayManager.removeHoliday(date)
-                setupFilters()
-                updateList()
-                updateWidgets()
-            }
-        )
-
-        rvHolidays.layoutManager = LinearLayoutManager(requireContext())
-        rvHolidays.adapter = adapter
+        cbOnlyCustom.setOnCheckedChangeListener { _, _ ->
+            setupFilters()
+            updateList()
+        }
 
         setupFilters()
 
@@ -143,18 +138,26 @@ class HolidayFragment : Fragment() {
             android.widget.Toast.makeText(requireContext(), "임시 휴무일이 등록되었습니다.", android.widget.Toast.LENGTH_SHORT).show()
         }
 
-        btnLoadMore.setOnClickListener {
-            displayedLimit += 10
-            updateList()
-        }
-
         updateList()
     }
 
     private fun setupFilters() {
-        val holidays = holidayManager.getCustomHolidays()
+        val isOnlyCustom = cbOnlyCustom.isChecked
+        val customHolidays = holidayManager.getCustomHolidays()
+
+        val uniqueYears = if (isOnlyCustom) {
+            customHolidays.map { it.date.year }.distinct().sorted()
+        } else {
+            val calendarHelper = CalendarHelper(requireContext())
+            val currentYear = LocalDate.now().year
+            val deviceHolidays = calendarHelper.getPublicHolidaysWithNames(
+                LocalDate.of(currentYear - 2, 1, 1),
+                LocalDate.of(currentYear + 2, 12, 31)
+            )
+            (customHolidays.map { it.date.year } + deviceHolidays.map { it.date.year }).distinct().sorted()
+        }
+
         val years = mutableListOf("전체 연도")
-        val uniqueYears = holidays.map { it.date.year }.distinct().sorted()
         uniqueYears.forEach { years.add("${it}년") }
 
         val yearAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, years).apply {
@@ -171,9 +174,11 @@ class HolidayFragment : Fragment() {
         }
         spFilterMonth.adapter = monthAdapter
 
+        spFilterYear.setSelection(0, false)
+        spFilterMonth.setSelection(0, false)
+
         val listener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                displayedLimit = 10
                 updateList()
             }
             override fun onNothingSelected(parent: AdapterView<*>?) {}
@@ -259,16 +264,36 @@ class HolidayFragment : Fragment() {
     }
 
     private fun updateList() {
-        val holidays = holidayManager.getCustomHolidays().sortedByDescending { it.date }
+        val isOnlyCustom = cbOnlyCustom.isChecked
+        val calendarHelper = CalendarHelper(requireContext())
+        val currentYear = LocalDate.now().year
 
-        val selectedYearPos = spFilterYear.selectedItemPosition
-        val selectedMonthPos = spFilterMonth.selectedItemPosition
+        val customItems = holidayManager.getCustomHolidays().map {
+            HolidayItem(it.date, it.name, isCustom = true)
+        }
+        val customDates = customItems.map { it.date }.toSet()
 
-        val filteredList = holidays.filter { item ->
+        val combined = if (isOnlyCustom) {
+            customItems.sortedByDescending { it.date }
+        } else {
+            val deviceItems = calendarHelper.getPublicHolidaysWithNames(
+                LocalDate.of(currentYear - 2, 1, 1),
+                LocalDate.of(currentYear + 2, 12, 31)
+            ).map {
+                HolidayItem(it.date, it.name, isCustom = false)
+            }.filter { !customDates.contains(it.date) }
+
+            (customItems + deviceItems).sortedByDescending { it.date }
+        }
+
+        val selectedYearPos = if (spFilterYear.selectedItemPosition < 0) 0 else spFilterYear.selectedItemPosition
+        val selectedMonthPos = if (spFilterMonth.selectedItemPosition < 0) 0 else spFilterMonth.selectedItemPosition
+
+        val filteredList = combined.filter { item ->
             val matchesYear = if (selectedYearPos <= 0) true else {
-                val yearText = spFilterYear.selectedItem as String
+                val yearText = spFilterYear.selectedItem as? String ?: ""
                 val year = yearText.replace("년", "").toIntOrNull()
-                item.date.year == year
+                year == null || item.date.year == year
             }
             val matchesMonth = if (selectedMonthPos <= 0) true else {
                 item.date.monthValue == selectedMonthPos
@@ -276,22 +301,43 @@ class HolidayFragment : Fragment() {
             matchesYear && matchesMonth
         }
 
-        val displayedList = filteredList.take(displayedLimit)
-        adapter.submitList(displayedList)
+        llHolidaysContainer.removeAllViews()
 
         if (filteredList.isEmpty()) {
             tvEmpty.visibility = View.VISIBLE
-            rvHolidays.visibility = View.GONE
-            btnLoadMore.visibility = View.GONE
+            llHolidaysContainer.visibility = View.GONE
         } else {
             tvEmpty.visibility = View.GONE
-            rvHolidays.visibility = View.VISIBLE
+            llHolidaysContainer.visibility = View.VISIBLE
 
-            if (filteredList.size > displayedList.size) {
-                btnLoadMore.visibility = View.VISIBLE
-                btnLoadMore.text = "+ 더보기 (${displayedList.size} / ${filteredList.size}개)"
-            } else {
-                btnLoadMore.visibility = View.GONE
+            val inflater = LayoutInflater.from(requireContext())
+            val formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd")
+            val days = arrayOf("월", "화", "수", "목", "금", "토", "일")
+
+            for (item in filteredList) {
+                val itemView = inflater.inflate(R.layout.list_item_holiday, llHolidaysContainer, false)
+                val tvDate = itemView.findViewById<TextView>(R.id.tvDate)
+                val tvName = itemView.findViewById<TextView>(R.id.tvName)
+                val btnDelete = itemView.findViewById<View>(R.id.btnDelete)
+
+                val dayOfWeek = days[item.date.dayOfWeek.value - 1]
+                tvDate.text = "${item.date.format(formatter)} ($dayOfWeek)"
+                tvName.text = item.name
+
+                if (item.isCustom) {
+                    btnDelete.visibility = View.VISIBLE
+                    btnDelete.setOnClickListener {
+                        holidayManager.removeHoliday(item.date)
+                        setupFilters()
+                        updateList()
+                        updateWidgets()
+                    }
+                } else {
+                    btnDelete.visibility = View.GONE
+                    btnDelete.setOnClickListener(null)
+                }
+
+                llHolidaysContainer.addView(itemView)
             }
         }
     }
@@ -312,38 +358,5 @@ class HolidayFragment : Fragment() {
     private fun dpToPx(dp: Int): Int {
         val density = resources.displayMetrics.density
         return (dp * density).toInt()
-    }
-}
-
-class HolidayAdapter(private val onDelete: (LocalDate) -> Unit) : RecyclerView.Adapter<HolidayAdapter.ViewHolder>() {
-
-    private var holidays = listOf<CustomHoliday>()
-    private val formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd")
-    private val days = arrayOf("월", "화", "수", "목", "금", "토", "일")
-
-    fun submitList(list: List<CustomHoliday>) {
-        holidays = list
-        notifyDataSetChanged()
-    }
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.list_item_holiday, parent, false)
-        return ViewHolder(view)
-    }
-
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val item = holidays[position]
-        val dayOfWeek = days[item.date.dayOfWeek.value - 1]
-        holder.tvDate.text = "${item.date.format(formatter)} ($dayOfWeek)"
-        holder.tvName.text = item.name
-        holder.btnDelete.setOnClickListener { onDelete(item.date) }
-    }
-
-    override fun getItemCount() = holidays.size
-
-    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val tvDate: TextView = view.findViewById(R.id.tvDate)
-        val tvName: TextView = view.findViewById(R.id.tvName)
-        val btnDelete: View = view.findViewById(R.id.btnDelete)
     }
 }

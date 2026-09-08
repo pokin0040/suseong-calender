@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true">
@@ -39,18 +39,30 @@
                 android:layout_marginTop="16dp" />
         </LinearLayout>
 
-        <RelativeLayout
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="16dp">
+            android:padding="16dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
             <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/registered_holidays"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <CheckBox
+                android:id="@+id/cbOnlyCustom"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/registered_holidays"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:layout_centerVertical="true" />
+                android:text="등록한 휴무일만 보기"
+                android:textSize="12sp"
+                android:textColor="@color/text_main"
+                android:checked="true"
+                android:layout_marginEnd="6dp" />
 
             <Button
                 android:id="@+id/btnAddHoliday"
@@ -58,12 +70,13 @@
                 android:layout_height="36dp"
                 android:backgroundTint="@color/primary"
                 android:text="@string/add_holiday"
-                android:textSize="13sp"
+                android:textSize="12sp"
                 android:textStyle="bold"
                 android:textColor="@color/white"
-                android:layout_alignParentEnd="true"
+                android:paddingLeft="8dp"
+                android:paddingRight="8dp"
                 style="@style/Widget.MaterialComponents.Button.UnelevatedButton" />
-        </RelativeLayout>
+        </LinearLayout>
 
         <!-- Filter Row: Year and Month -->
         <LinearLayout
@@ -240,29 +253,13 @@
             android:gravity="center"
             android:visibility="gone" />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvHolidays"
+        <LinearLayout
+            android:id="@+id/llHolidaysContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:nestedScrollingEnabled="false"
+            android:orientation="vertical"
             android:padding="16dp" />
-
-        <!-- Load More Button -->
-        <Button
-            android:id="@+id/btnLoadMore"
-            android:layout_width="match_parent"
-            android:layout_height="44dp"
-            android:text="+ 더보기"
-            android:textColor="@color/primary"
-            android:backgroundTint="#FFEBEE"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
-            android:layout_marginBottom="24dp"
-            android:visibility="gone"
-            style="@style/Widget.MaterialComponents.Button.UnelevatedButton" />
 
     </LinearLayout>
 
-</ScrollView>
+</androidx.core.widget.NestedScrollView>

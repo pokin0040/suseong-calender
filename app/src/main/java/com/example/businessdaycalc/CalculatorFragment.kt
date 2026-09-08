@@ -1,6 +1,7 @@
 package com.example.businessdaycalc
 
 import android.os.Bundle
+import android.provider.CalendarContract
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,6 +10,7 @@ import android.widget.GridLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import java.time.LocalDate
@@ -142,10 +144,57 @@ class CalculatorFragment : Fragment() {
                     selectedBaseDate = date
                     populateCalendarGrid()
                     refreshCalculations()
+//                    showDateDetailDialog(date)
                 }
             }
             gridCalendarDays.addView(cell)
         }
+    }
+
+    private fun showDateDetailDialog(date: LocalDate) {
+        val isWeekend = date.dayOfWeek == java.time.DayOfWeek.SATURDAY || date.dayOfWeek == java.time.DayOfWeek.SUNDAY
+        val customHolidays = holidayManager.getCustomHolidays().filter { it.date == date }
+        val isCustomHoliday = customHolidays.isNotEmpty()
+        val deviceHolidays = calendarHelper.getCalendarHolidays(date, date)
+        val isDeviceHoliday = deviceHolidays.contains(date)
+        val isHoliday = isWeekend || isCustomHoliday || isDeviceHoliday
+
+        val eventDetails = calendarHelper.getEventDetailsForDate(date)
+
+        val holidayTypeStr = when {
+            isWeekend -> "주말"
+            isCustomHoliday -> "임시 휴무일 (${customHolidays.joinToString { it.name }})"
+            isDeviceHoliday -> "공휴일 (캘린더)"
+            else -> "평일 (영업일)"
+        }
+
+        val sb = StringBuilder()
+        sb.append("• 날짜: $date\n")
+        sb.append("• 휴일 판정: ${if (isHoliday) "휴일 (비영업일)" else "평일 (영업일)"}\n")
+        sb.append("• 구분: $holidayTypeStr\n\n")
+
+        sb.append("[ 캘린더 이벤트 및 availability ]\n")
+        if (eventDetails.isEmpty()) {
+            sb.append("등록된 캘린더 이벤트 없음\n")
+        } else {
+            eventDetails.forEach { event ->
+                val availText = when (event.availability) {
+                    CalendarContract.Instances.AVAILABILITY_BUSY -> "0 (BUSY - 바쁨)"
+                    CalendarContract.Instances.AVAILABILITY_FREE -> "1 (FREE - 한가함)"
+                    CalendarContract.Instances.AVAILABILITY_TENTATIVE -> "2 (TENTATIVE)"
+                    else -> "${event.availability}"
+                }
+                sb.append("- 이벤트명: ${event.title}\n")
+                sb.append("  availability: $availText\n")
+                sb.append("  공휴일 인정 여부: ${if (event.isPublicHoliday) "O (공휴일)" else "X (기념일)"}\n\n")
+            }
+        }
+
+        AlertDialog.Builder(requireContext())
+            .setTitle("${date.year}년 ${date.monthValue}월 ${date.dayOfMonth}일 정보")
+            .setMessage(sb.toString().trimEnd())
+            .setPositiveButton("확인", null)
+            .show()
     }
 
     private fun isHolidayOrWeekend(date: LocalDate): Boolean {
