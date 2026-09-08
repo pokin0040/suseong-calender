@@ -9,7 +9,7 @@
     <string name="add_holiday">+ 휴무일 추가</string>
     <string name="delivery_date">배달일</string>
     <string name="storage_date">보관일</string>
-    <string name="note_business_day">* 배달일은 영업일 기준으로 계산됩니다.</string>
+    <string name="note_business_day">배달일은 영업일 기준으로 계산됩니다.</string>
     
     <string name="widget_title_large">대구수성만촌등기배달일 위젯 (대)</string>
     <string name="widget_title_medium">대구수성만촌등기배달일 위젯 (중)</string>
