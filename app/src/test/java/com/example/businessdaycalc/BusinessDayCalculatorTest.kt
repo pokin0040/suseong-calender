@@ -1,6 +1,8 @@
 package com.example.businessdaycalc
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
+import org.junit.Assert.assertFalse
 import org.junit.Test
 import java.time.LocalDate
 
@@ -82,5 +84,35 @@ class BusinessDayCalculatorTest {
         val storageSteps = 2
         val totalSteps = deliverySteps + storageSteps
         assertEquals(LocalDate.of(2026, 9, 9), calculator.addBusinessDays(baseDate, totalSteps)) // Wednesday
+    }
+
+    @Test
+    fun testChuseokFriday() {
+        // 추석이 금요일인 경우: 목요일(평일)만 추가, 토요일(주말)은 제외
+        val chuseok = LocalDate.of(2026, 9, 25) // Friday
+        val expanded = CalendarHelper.expandSeollalChuseokHolidays(setOf(chuseok), setOf(chuseok))
+
+        assertTrue(expanded.contains(LocalDate.of(2026, 9, 24))) // Thursday (added)
+        assertFalse(expanded.contains(LocalDate.of(2026, 9, 26))) // Saturday (weekend, excluded)
+    }
+
+    @Test
+    fun testChuseokMonday() {
+        // 추석이 월요일인 경우: 화요일(평일)만 추가, 일요일(주말)은 제외
+        val chuseok = LocalDate.of(2026, 9, 21) // Monday
+        val expanded = CalendarHelper.expandSeollalChuseokHolidays(setOf(chuseok), setOf(chuseok))
+
+        assertTrue(expanded.contains(LocalDate.of(2026, 9, 22))) // Tuesday (added)
+        assertFalse(expanded.contains(LocalDate.of(2026, 9, 20))) // Sunday (weekend, excluded)
+    }
+
+    @Test
+    fun testChuseokTuesday() {
+        // 추석이 화요일인 경우: 월요일(평일), 수요일(평일) 둘 다 추가
+        val chuseok = LocalDate.of(2026, 9, 22) // Tuesday
+        val expanded = CalendarHelper.expandSeollalChuseokHolidays(setOf(chuseok), setOf(chuseok))
+
+        assertTrue(expanded.contains(LocalDate.of(2026, 9, 21))) // Monday (added)
+        assertTrue(expanded.contains(LocalDate.of(2026, 9, 23))) // Wednesday (added)
     }
 }
