@@ -23,20 +23,18 @@ object WidgetHelper {
 
             val views = RemoteViews(context.packageName, layoutId)
 
-            // Apply Opacity and Theme Color
+            // Apply Opacity and Theme Color to Background Layer ONLY
             val opacity = WidgetPreferences.getOpacity(context, appWidgetId)
             val isDark = WidgetPreferences.isDark(context, appWidgetId)
 
             if (isDark) {
-                views.setInt(R.id.widget_root, "setBackgroundResource", R.drawable.widget_bg_dark)
+                views.setInt(R.id.widget_bg_view, "setBackgroundResource", R.drawable.widget_bg_dark)
             } else {
-                views.setInt(R.id.widget_root, "setBackgroundResource", R.drawable.widget_bg)
+                views.setInt(R.id.widget_bg_view, "setBackgroundResource", R.drawable.widget_bg)
             }
 
-            val alphaFloat = opacity.coerceIn(10, 100) / 100f
-            views.setFloat(R.id.widget_root, "setAlpha", alphaFloat)
-
-
+            val alphaFloat = opacity.coerceIn(0, 100) / 100f
+            views.setFloat(R.id.widget_bg_view, "setAlpha", alphaFloat)
 
             val today = LocalDate.now(ZoneId.systemDefault())
 

@@ -132,15 +132,15 @@ class WidgetConfigureActivity : AppCompatActivity() {
         // Inflate correct preview layout
         val previewView = layoutInflater.inflate(layoutRes, previewContainer, false)
 
-        val widgetRoot = previewView.findViewById<View>(R.id.widget_root)
+        val widgetBgView = previewView.findViewById<View>(R.id.widget_bg_view)
         if (isDarkTheme) {
-            widgetRoot?.setBackgroundResource(R.drawable.widget_bg_dark)
+            widgetBgView?.setBackgroundResource(R.drawable.widget_bg_dark)
         } else {
-            widgetRoot?.setBackgroundResource(R.drawable.widget_bg)
+            widgetBgView?.setBackgroundResource(R.drawable.widget_bg)
         }
 
-        val alphaFloat = currentOpacity.coerceIn(10, 100) / 100f
-        widgetRoot?.alpha = alphaFloat
+        val alphaFloat = currentOpacity.coerceIn(0, 100) / 100f
+        widgetBgView?.alpha = alphaFloat
 
         previewContainer.addView(previewView)
     }
