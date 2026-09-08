@@ -115,12 +115,29 @@ class HolidayFragment : Fragment() {
 
         btnConfirmAddHoliday.setOnClickListener {
             hideKeyboard()
+
+            // Check if already weekend or public holiday
+            if (pendingSelectedDate.dayOfWeek == java.time.DayOfWeek.SATURDAY || 
+                pendingSelectedDate.dayOfWeek == java.time.DayOfWeek.SUNDAY || 
+                KoreanHolidays.HOLIDAYS.contains(pendingSelectedDate)) {
+                android.widget.Toast.makeText(requireContext(), "이미 주말 또는 공휴일로 지정되어 있는 날짜입니다.", android.widget.Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            // Check if already registered custom holiday
+            val existing = holidayManager.getCustomHolidays().find { it.date == pendingSelectedDate }
+            if (existing != null) {
+                android.widget.Toast.makeText(requireContext(), "이미 등록되어 있는 임시 휴무일입니다.", android.widget.Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
             val name = etHolidayName.text.toString().trim().ifEmpty { "대체공휴일" }
             holidayManager.addHoliday(CustomHoliday(pendingSelectedDate, name))
             cardCalendar.visibility = View.GONE
             setupFilters()
             updateList()
             updateWidgets()
+            android.widget.Toast.makeText(requireContext(), "임시 휴무일이 등록되었습니다.", android.widget.Toast.LENGTH_SHORT).show()
         }
 
         btnLoadMore.setOnClickListener {
