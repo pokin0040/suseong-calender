@@ -4,12 +4,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- Separate Background Layer -->
-    <View
+    <!-- Separate Background ImageView for Safe RemoteViews Opacity -->
+    <ImageView
         android:id="@+id/widget_bg_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/widget_bg" />
+        android:src="@drawable/widget_bg"
+        android:scaleType="fitXY" />
 
     <!-- Content Layer -->
     <LinearLayout
