@@ -6,5 +6,6 @@
     android:targetCellHeight="2"
     android:updatePeriodMillis="86400000"
     android:initialLayout="@layout/widget_large"
+    android:configure="com.example.businessdaycalc.WidgetConfigureActivity"
     android:resizeMode="horizontal|vertical"
     android:widgetCategory="home_screen" />

@@ -4,6 +4,7 @@ import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.view.View
 import android.widget.RemoteViews
 import java.time.LocalDate
@@ -21,6 +22,19 @@ object WidgetHelper {
             }
 
             val views = RemoteViews(context.packageName, layoutId)
+
+            // Apply Opacity and Theme Color
+            val opacity = WidgetPreferences.getOpacity(context, appWidgetId)
+            val isDark = WidgetPreferences.isDark(context, appWidgetId)
+
+            val alpha255 = (opacity * 255 / 100)
+            val bgColor = if (isDark) {
+                Color.argb(alpha255, 33, 33, 33)
+            } else {
+                Color.argb(alpha255, 255, 255, 255)
+            }
+            views.setInt(R.id.widget_root, "setBackgroundColor", bgColor)
+
             val today = LocalDate.now(ZoneId.systemDefault())
 
             val holidayManager = HolidayManager(context)
@@ -136,7 +150,7 @@ object WidgetHelper {
             val text = if (deliveryDates.size == 1) {
                 formatWithDayOfWeek(deliveryDates[0])
             } else {
-                deliveryDates.joinToString(" - ") { formatMMdd(it) }
+                deliveryDates.joinToString("-") { formatMMdd(it) }
             }
             views.setTextViewText(delId, text)
             views.setViewVisibility(delId, View.VISIBLE)
