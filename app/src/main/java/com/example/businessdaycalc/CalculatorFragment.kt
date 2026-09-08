@@ -1,30 +1,41 @@
 package com.example.businessdaycalc
 
-import android.app.DatePickerDialog
-import android.graphics.Paint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.GridLayout
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import java.time.LocalDate
+import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 
 class CalculatorFragment : Fragment() {
 
     private lateinit var calcContainer: LinearLayout
+    private lateinit var cardBaseDate: LinearLayout
+    private lateinit var tvBaseDateValue: TextView
+    private lateinit var btnToday: Button
+
+    private lateinit var cardCalendar: LinearLayout
+    private lateinit var btnPrevMonth: ImageView
+    private lateinit var btnNextMonth: ImageView
+    private lateinit var tvCalendarMonthTitle: TextView
+    private lateinit var gridCalendarDays: GridLayout
+    private lateinit var btnCloseCalendar: Button
+
     private lateinit var settingsManager: SettingsManager
     private lateinit var holidayManager: HolidayManager
     private lateinit var calendarHelper: CalendarHelper
 
-    private lateinit var tvSelectCustomDate: TextView
-    private lateinit var tvBaseDateLabel: TextView
-    private lateinit var tvDesc: TextView
-
     private var selectedBaseDate: LocalDate? = null
+    private var pendingSelectedDate: LocalDate = LocalDate.now()
+    private var displayYearMonth: YearMonth = YearMonth.now()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_calculator, container, false)
@@ -34,60 +45,118 @@ class CalculatorFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         
         calcContainer = view.findViewById(R.id.calcContainer)
-        tvSelectCustomDate = view.findViewById(R.id.tvSelectCustomDate)
-        tvBaseDateLabel = view.findViewById(R.id.tvBaseDateLabel)
-        tvDesc = view.findViewById(R.id.tvDesc)
+        cardBaseDate = view.findViewById(R.id.cardBaseDate)
+        tvBaseDateValue = view.findViewById(R.id.tvBaseDateValue)
+        btnToday = view.findViewById(R.id.btnToday)
+
+        cardCalendar = view.findViewById(R.id.cardCalendar)
+        btnPrevMonth = view.findViewById(R.id.btnPrevMonth)
+        btnNextMonth = view.findViewById(R.id.btnNextMonth)
+        tvCalendarMonthTitle = view.findViewById(R.id.tvCalendarMonthTitle)
+        gridCalendarDays = view.findViewById(R.id.gridCalendarDays)
+        btnCloseCalendar = view.findViewById(R.id.btnCloseCalendar)
 
         settingsManager = SettingsManager(requireContext())
         holidayManager = HolidayManager(requireContext())
         calendarHelper = CalendarHelper(requireContext())
 
-        // Underline "다른날짜 배달일 계산"
-        tvSelectCustomDate.paintFlags = tvSelectCustomDate.paintFlags or Paint.UNDERLINE_TEXT_FLAG
-        tvSelectCustomDate.setOnClickListener {
-            showDatePicker()
+        cardBaseDate.setOnClickListener {
+            if (cardCalendar.isVisible) {
+                cardCalendar.visibility = View.GONE
+            } else {
+                pendingSelectedDate = selectedBaseDate ?: LocalDate.now()
+                displayYearMonth = YearMonth.from(pendingSelectedDate)
+                populateCalendarGrid()
+                cardCalendar.visibility = View.VISIBLE
+            }
         }
 
-        view.findViewById<Button>(R.id.btnRefresh).setOnClickListener {
-            selectedBaseDate = null
+        btnPrevMonth.setOnClickListener {
+            displayYearMonth = displayYearMonth.minusMonths(1)
+            populateCalendarGrid()
+        }
+
+        btnNextMonth.setOnClickListener {
+            displayYearMonth = displayYearMonth.plusMonths(1)
+            populateCalendarGrid()
+        }
+
+        btnCloseCalendar.setOnClickListener {
+            cardCalendar.visibility = View.GONE
+        }
+
+        btnToday.setOnClickListener {
+            selectedBaseDate = LocalDate.now()
+            pendingSelectedDate = LocalDate.now()
+            displayYearMonth = YearMonth.now()
+            cardCalendar.visibility = View.GONE
             refreshCalculations()
         }
 
         refreshCalculations()
     }
 
-    private fun showDatePicker() {
-        val currentBase = selectedBaseDate ?: LocalDate.now()
-        DatePickerDialog(
-            requireContext(),
-            { _, year, month, dayOfMonth ->
-                selectedBaseDate = LocalDate.of(year, month + 1, dayOfMonth)
-                refreshCalculations()
-            },
-            currentBase.year,
-            currentBase.monthValue - 1,
-            currentBase.dayOfMonth
-        ).show()
+    private fun populateCalendarGrid() {
+        gridCalendarDays.removeAllViews()
+        tvCalendarMonthTitle.text = "${displayYearMonth.year}년 ${displayYearMonth.monthValue}월"
+
+        val firstDayOfMonth = displayYearMonth.atDay(1)
+        // Sunday = 0, Mon = 1 ... Sat = 6
+        val firstDayOfWeekOffset = firstDayOfMonth.dayOfWeek.value % 7
+        val gridStartDate = firstDayOfMonth.minusDays(firstDayOfWeekOffset.toLong())
+
+        for (i in 0 until 42) {
+            val date = gridStartDate.plusDays(i.toLong())
+            val cell = TextView(requireContext()).apply {
+                text = date.dayOfMonth.toString()
+                textSize = 14f
+                gravity = android.view.Gravity.CENTER
+                layoutParams = GridLayout.LayoutParams().apply {
+                    width = 0
+                    height = dpToPx(38)
+                    columnSpec = GridLayout.spec(i % 7, 1f)
+                    rowSpec = GridLayout.spec(i / 7)
+                }
+
+                if (date == (selectedBaseDate ?: pendingSelectedDate)) {
+                    setBackgroundResource(R.drawable.bg_day_selected)
+                    setTextColor(resources.getColor(R.color.white, null))
+                    setTypeface(null, android.graphics.Typeface.BOLD)
+                } else if (date == LocalDate.now()) {
+                    setBackgroundResource(R.drawable.bg_day_today)
+                    setTextColor(resources.getColor(R.color.primary, null))
+                    setTypeface(null, android.graphics.Typeface.BOLD)
+                } else if (date.monthValue != displayYearMonth.monthValue) {
+                    setTextColor(resources.getColor(R.color.divider, null))
+                } else {
+                    setTextColor(resources.getColor(R.color.text_main, null))
+                }
+
+                setOnClickListener {
+                    pendingSelectedDate = date
+                    selectedBaseDate = date
+                    populateCalendarGrid()
+                    refreshCalculations() // <--- Real-time recalculation!
+                }
+            }
+            gridCalendarDays.addView(cell)
+        }
     }
 
     private fun refreshCalculations() {
-        // Remove old dynamic rows
+        // Remove old dynamic rows (keep table header idx 0, divider idx 1, and footer note idx last)
         val childCount = calcContainer.childCount
-        // Keep link (0), table header (1), divider (2) and note (last)
-        if (childCount > 4) {
-            calcContainer.removeViews(3, childCount - 4)
+        if (childCount > 3) {
+            calcContainer.removeViews(2, childCount - 3)
         }
 
         val baseDate = selectedBaseDate ?: LocalDate.now()
 
-        if (selectedBaseDate != null) {
-            val dayStr = baseDate.dayOfMonth.toString().padStart(2, '0')
-            tvBaseDateLabel.text = "${baseDate.year}년 ${baseDate.monthValue}월 ${dayStr}일"
-            tvDesc.text = "${baseDate.year}년 ${baseDate.monthValue}월 ${dayStr}일 기준으로 계산됩니다."
-        } else {
-            tvBaseDateLabel.text = ""
-            tvDesc.text = "오늘 날짜 기준으로 계산됩니다."
-        }
+        // Format Date string e.g. 2026.09.08 (화)
+        val days = arrayOf("월", "화", "수", "목", "금", "토", "일")
+        val dayOfWeek = days[baseDate.dayOfWeek.value - 1]
+        val formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd")
+        tvBaseDateValue.text = "${baseDate.format(formatter)} ($dayOfWeek)"
 
         val customHolidays = holidayManager.getCustomHolidays().map { it.date }.toSet()
         val deviceHolidays = calendarHelper.getCalendarHolidays(baseDate, baseDate.plusDays(30))
@@ -95,7 +164,7 @@ class CalculatorFragment : Fragment() {
 
         val settings = settingsManager.getAllSettings()
 
-        var insertIndex = 3
+        var insertIndex = 2
         for (setting in settings) {
             val row = buildRow(setting, baseDate, calculator)
             calcContainer.addView(row, insertIndex)

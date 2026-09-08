@@ -4,13 +4,16 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <!-- Top Header -->
+    <!-- Top Red Header -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/primary"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="20dp">
 
         <TextView
             android:layout_width="match_parent"
@@ -19,37 +22,172 @@
             android:textColor="@color/white"
             android:textSize="20sp"
             android:textStyle="bold"
-            android:gravity="center" />
+            android:gravity="center"
+            android:layout_marginBottom="16dp" />
 
-
-
+        <!-- Calculation Base Date Card -->
         <LinearLayout
+            android:id="@+id/cardBaseDate"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@drawable/bg_white_card"
             android:orientation="horizontal"
+            android:padding="12dp"
             android:gravity="center_vertical"
-            android:layout_marginTop="8dp">
+            android:clickable="true"
+            android:focusable="true">
 
-            <TextView
-                android:id="@+id/tvDesc"
+            <ImageView
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/ic_calendar_red"
+                android:layout_marginEnd="12dp"
+                android:contentDescription="달력" />
+
+            <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/calculator_desc"
-                android:textColor="@color/white"
-                android:textSize="14sp" />
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="계산 기준일"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginTop="2dp">
+
+                    <TextView
+                        android:id="@+id/tvBaseDateValue"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="2026.09.08 (화)"
+                        android:textColor="@color/primary"
+                        android:textSize="17sp"
+                        android:textStyle="bold" />
+
+                    <ImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:src="@drawable/ic_chevron_right"
+                        android:layout_marginStart="4dp"
+                        android:contentDescription="선택" />
+                </LinearLayout>
+            </LinearLayout>
 
             <Button
-                android:id="@+id/btnRefresh"
+                android:id="@+id/btnToday"
                 android:layout_width="wrap_content"
                 android:layout_height="36dp"
-                android:backgroundTint="@color/white"
-                android:text="새로고침"
-                android:textSize="12sp"
-                android:textStyle="bold"
+                android:backgroundTint="#FFEBEE"
+                android:text="오늘 날짜"
                 android:textColor="@color/primary"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:paddingLeft="12dp"
+                android:paddingRight="12dp"
                 style="@style/Widget.MaterialComponents.Button.UnelevatedButton" />
         </LinearLayout>
+
+        <!-- Custom Expandable Calendar Card -->
+        <LinearLayout
+            android:id="@+id/cardCalendar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_white_card"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:layout_marginTop="12dp"
+            android:visibility="gone">
+
+            <!-- Month Header Row -->
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp">
+
+                <ImageView
+                    android:id="@+id/btnPrevMonth"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:src="@drawable/ic_chevron_left_red"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
+                    android:padding="4dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:contentDescription="이전달" />
+
+                <TextView
+                    android:id="@+id/tvCalendarMonthTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:text="2026년 9월"
+                    android:textColor="@color/primary"
+                    android:textSize="17sp"
+                    android:textStyle="bold" />
+
+                <ImageView
+                    android:id="@+id/btnNextMonth"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:src="@drawable/ic_chevron_right_red"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:padding="4dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:contentDescription="다음달" />
+            </RelativeLayout>
+
+            <!-- Weekdays Row -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="12dp">
+
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="일" android:textColor="@color/text_secondary" android:gravity="center" android:textSize="13sp" />
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="월" android:textColor="@color/text_secondary" android:gravity="center" android:textSize="13sp" />
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="화" android:textColor="@color/text_secondary" android:gravity="center" android:textSize="13sp" />
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="수" android:textColor="@color/text_secondary" android:gravity="center" android:textSize="13sp" />
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="목" android:textColor="@color/text_secondary" android:gravity="center" android:textSize="13sp" />
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="금" android:textColor="@color/text_secondary" android:gravity="center" android:textSize="13sp" />
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="토" android:textColor="@color/text_secondary" android:gravity="center" android:textSize="13sp" />
+            </LinearLayout>
+
+            <!-- Days Grid -->
+            <GridLayout
+                android:id="@+id/gridCalendarDays"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:columnCount="7"
+                android:alignmentMode="alignBounds"
+                android:useDefaultMargins="false"
+                android:layout_marginBottom="16dp" />
+
+            <!-- Close Calendar Button -->
+            <Button
+                android:id="@+id/btnCloseCalendar"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:backgroundTint="@color/primary"
+                android:text="닫기"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                style="@style/Widget.MaterialComponents.Button.UnelevatedButton" />
+
+        </LinearLayout>
+
     </LinearLayout>
 
     <ScrollView
@@ -64,20 +202,6 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- Other Date Link -->
-            <TextView
-                android:id="@+id/tvSelectCustomDate"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="다른날짜 배달일 계산"
-                android:textColor="@color/text_main"
-                android:textSize="13sp"
-                android:textStyle="bold"
-                android:paddingBottom="16dp"
-                android:clickable="true"
-                android:focusable="true"
-                android:background="?attr/selectableItemBackground" />
-
             <!-- Table Header -->
             <LinearLayout
                 android:layout_width="match_parent"
@@ -86,20 +210,16 @@
                 android:paddingBottom="8dp"
                 android:gravity="center_vertical">
                 
-                <TextView
-                    android:id="@+id/tvBaseDateLabel"
-                    android:layout_width="110dp"
-                    android:layout_height="wrap_content"
-                    android:textSize="12.5sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/text_main" />
+                <View
+                    android:layout_width="64dp"
+                    android:layout_height="0dp" />
 
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="@string/delivery_date"
-                    android:textColor="@color/chip_green_border"
+                    android:textColor="@color/primary"
                     android:textStyle="bold"
                     android:gravity="center" />
 
@@ -108,7 +228,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="0.35"
                     android:text="@string/storage_date"
-                    android:textColor="@color/chip_blue_border"
+                    android:textColor="@color/chip_blue_text"
                     android:textStyle="bold"
                     android:gravity="center" />
             </LinearLayout>
@@ -121,13 +241,28 @@
 
             <!-- Rows will be added dynamically here -->
 
-            <TextView
+            <!-- Bottom Note -->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:text="@string/note_business_day"
-                android:textColor="@color/text_secondary"
-                android:textSize="12sp" />
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="24dp">
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_info_gray"
+                    android:layout_marginEnd="6dp"
+                    android:contentDescription="안내" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/note_business_day"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp" />
+            </LinearLayout>
 
         </LinearLayout>
     </ScrollView>
