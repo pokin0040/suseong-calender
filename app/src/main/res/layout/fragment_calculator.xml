@@ -219,7 +219,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="@string/delivery_date"
-                    android:textColor="@color/primary"
+                    android:textColor="@color/chip_blue_text"
                     android:textStyle="bold"
                     android:gravity="center" />
 
@@ -228,7 +228,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="0.35"
                     android:text="@string/storage_date"
-                    android:textColor="@color/chip_blue_text"
+                    android:textColor="@color/primary"
                     android:textStyle="bold"
                     android:gravity="center" />
             </LinearLayout>

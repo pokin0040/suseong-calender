@@ -9,55 +9,48 @@
     android:gravity="center_vertical">
 
     <!-- Header Row -->
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
         android:layout_marginBottom="4dp">
 
-        <LinearLayout
-            android:layout_width="match_parent"
+        <TextView android:layout_width="52dp" android:layout_height="wrap_content" />
+
+        <TextView
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:layout_weight="1"
+            android:text="배달일"
+            android:textColor="@color/chip_blue_text"
+            android:textStyle="bold"
+            android:textSize="11.5sp"
+            android:gravity="center" />
 
-            <TextView android:layout_width="52dp" android:layout_height="wrap_content" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=":"
+            android:visibility="invisible"
+            android:paddingLeft="2dp"
+            android:paddingRight="2dp" />
 
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="배달일"
-                android:textColor="@color/chip_green_text"
-                android:textStyle="bold"
-                android:textSize="11.5sp"
-                android:gravity="center" />
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.38"
+            android:gravity="center">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text=":"
-                android:visibility="invisible"
-                android:paddingLeft="2dp"
-                android:paddingRight="2dp" />
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.38"
-                android:gravity="center">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="보관일"
-                    android:textColor="@color/chip_blue_text"
-                    android:textStyle="bold"
-                    android:textSize="11.5sp" />
-            </LinearLayout>
+                android:text="보관일"
+                android:textColor="@color/chip_green_text"
+                android:textStyle="bold"
+                android:textSize="11.5sp" />
         </LinearLayout>
-
-
-    </RelativeLayout>
+    </LinearLayout>
 
     <!-- Normal (일반등기) -->
     <LinearLayout
@@ -87,8 +80,8 @@
                 android:id="@+id/chipNormalDel1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/chip_green"
-                android:textColor="@color/chip_green_text"
+                android:background="@drawable/chip_blue"
+                android:textColor="@color/chip_blue_text"
                 android:textSize="10.5sp"
                 android:paddingLeft="4dp"
                 android:paddingRight="4dp"
@@ -110,8 +103,8 @@
                 android:id="@+id/chipNormalDel2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/chip_green"
-                android:textColor="@color/chip_green_text"
+                android:background="@drawable/chip_blue"
+                android:textColor="@color/chip_blue_text"
                 android:textSize="10.5sp"
                 android:paddingLeft="4dp"
                 android:paddingRight="4dp"
@@ -133,8 +126,8 @@
                 android:id="@+id/chipNormalDel3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/chip_green"
-                android:textColor="@color/chip_green_text"
+                android:background="@drawable/chip_blue"
+                android:textColor="@color/chip_blue_text"
                 android:textSize="10.5sp"
                 android:paddingLeft="4dp"
                 android:paddingRight="4dp"
@@ -162,8 +155,8 @@
                 android:id="@+id/chipNormalSto"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/chip_blue"
-                android:textColor="@color/chip_blue_text"
+                android:background="@drawable/chip_green"
+                android:textColor="@color/chip_green_text"
                 android:textSize="10.5sp"
                 android:paddingLeft="4dp"
                 android:paddingRight="4dp"
@@ -200,8 +193,8 @@
                 android:id="@+id/chipCertDel1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/chip_green"
-                android:textColor="@color/chip_green_text"
+                android:background="@drawable/chip_blue"
+                android:textColor="@color/chip_blue_text"
                 android:textSize="10.5sp"
                 android:paddingLeft="4dp"
                 android:paddingRight="4dp"
@@ -223,8 +216,8 @@
                 android:id="@+id/chipCertDel2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/chip_green"
-                android:textColor="@color/chip_green_text"
+                android:background="@drawable/chip_blue"
+                android:textColor="@color/chip_blue_text"
                 android:textSize="10.5sp"
                 android:paddingLeft="4dp"
                 android:paddingRight="4dp"
@@ -246,8 +239,8 @@
                 android:id="@+id/chipCertDel3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/chip_green"
-                android:textColor="@color/chip_green_text"
+                android:background="@drawable/chip_blue"
+                android:textColor="@color/chip_blue_text"
                 android:textSize="10.5sp"
                 android:paddingLeft="4dp"
                 android:paddingRight="4dp"
@@ -275,8 +268,8 @@
                 android:id="@+id/chipCertSto"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/chip_blue"
-                android:textColor="@color/chip_blue_text"
+                android:background="@drawable/chip_green"
+                android:textColor="@color/chip_green_text"
                 android:textSize="10.5sp"
                 android:paddingLeft="4dp"
                 android:paddingRight="4dp"

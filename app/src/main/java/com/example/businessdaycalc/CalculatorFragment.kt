@@ -207,8 +207,8 @@ class CalculatorFragment : Fragment() {
         deliveryDates.forEachIndexed { index, date ->
             val tv = TextView(context).apply {
                 text = formatDate(date)
-                setBackgroundResource(R.drawable.chip_green)
-                setTextColor(resources.getColor(R.color.chip_green_text, null))
+                setBackgroundResource(R.drawable.chip_blue)
+                setTextColor(resources.getColor(R.color.chip_blue_text, null))
                 setPadding(dpToPx(5), dpToPx(3), dpToPx(5), dpToPx(3))
                 textSize = 11f
                 isSingleLine = true
@@ -247,8 +247,8 @@ class CalculatorFragment : Fragment() {
             val storageDate = calculator.addBusinessDays(baseDate, totalStorageSteps)
             val tv = TextView(context).apply {
                 text = formatDate(storageDate)
-                setBackgroundResource(R.drawable.chip_blue)
-                setTextColor(resources.getColor(R.color.chip_blue_text, null))
+                setBackgroundResource(R.drawable.chip_green)
+                setTextColor(resources.getColor(R.color.chip_green_text, null))
                 setPadding(dpToPx(5), dpToPx(3), dpToPx(5), dpToPx(3))
                 textSize = 11f
                 isSingleLine = true
