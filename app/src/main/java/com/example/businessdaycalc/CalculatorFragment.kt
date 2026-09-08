@@ -138,46 +138,14 @@ class CalculatorFragment : Fragment() {
                 }
 
                 setOnClickListener {
-                    showDateDebugDialog(date)
+                    pendingSelectedDate = date
+                    selectedBaseDate = date
+                    populateCalendarGrid()
+                    refreshCalculations()
                 }
             }
             gridCalendarDays.addView(cell)
         }
-    }
-
-    private fun showDateDebugDialog(date: LocalDate) {
-        val prettyJson = calendarHelper.getEventFullRawJsonForDate(date)
-
-        val days = arrayOf("월", "화", "수", "목", "금", "토", "일")
-        val dayOfWeekStr = days[date.dayOfWeek.value - 1]
-
-        val sb = StringBuilder()
-        sb.append("📅 선택 날짜: ${date.format(DateTimeFormatter.ofPattern("yyyy.MM.dd"))} ($dayOfWeekStr)\n\n")
-        sb.append("📋 [Raw DB Pretty JSON]:\n")
-        sb.append(prettyJson)
-
-        val scrollView = android.widget.ScrollView(requireContext()).apply {
-            setPadding(32, 16, 32, 16)
-        }
-        val tvMessage = TextView(requireContext()).apply {
-            text = sb.toString().trim()
-            textSize = 12f
-            setTextIsSelectable(true) // 텍스트 복사 가능
-            setTextColor(resources.getColor(R.color.text_main, null))
-        }
-        scrollView.addView(tvMessage)
-
-        androidx.appcompat.app.AlertDialog.Builder(requireContext())
-            .setTitle("Raw DB Pretty JSON 디버그")
-            .setView(scrollView)
-            .setPositiveButton("선택 및 계산") { _, _ ->
-                pendingSelectedDate = date
-                selectedBaseDate = date
-                populateCalendarGrid()
-                refreshCalculations()
-            }
-            .setNegativeButton("닫기", null)
-            .show()
     }
 
     private fun isHolidayOrWeekend(date: LocalDate): Boolean {
