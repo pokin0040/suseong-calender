@@ -149,6 +149,73 @@ class HolidayFragment : Fragment() {
         }
 
         updateList()
+        showCalendarDebugDialog()
+    }
+
+    private fun showCalendarDebugDialog() {
+        if (androidx.core.content.ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.READ_CALENDAR) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+            androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                .setTitle("기기 캘린더 디버그")
+                .setMessage("READ_CALENDAR 권한이 허용되어 있지 않습니다.")
+                .setPositiveButton("확인", null)
+                .show()
+            return
+        }
+
+        val sb = StringBuilder()
+        try {
+            val projection = arrayOf(
+                android.provider.CalendarContract.Calendars._ID,
+                android.provider.CalendarContract.Calendars.CALENDAR_DISPLAY_NAME,
+                android.provider.CalendarContract.Calendars.ACCOUNT_NAME,
+                android.provider.CalendarContract.Calendars.ACCOUNT_TYPE,
+                android.provider.CalendarContract.Calendars.OWNER_ACCOUNT
+            )
+
+            val cursor = requireContext().contentResolver.query(
+                android.provider.CalendarContract.Calendars.CONTENT_URI,
+                projection,
+                null,
+                null,
+                null
+            )
+
+            cursor?.use {
+                val idIdx = it.getColumnIndex(android.provider.CalendarContract.Calendars._ID)
+                val nameIdx = it.getColumnIndex(android.provider.CalendarContract.Calendars.CALENDAR_DISPLAY_NAME)
+                val accNameIdx = it.getColumnIndex(android.provider.CalendarContract.Calendars.ACCOUNT_NAME)
+                val accTypeIdx = it.getColumnIndex(android.provider.CalendarContract.Calendars.ACCOUNT_TYPE)
+                val ownerIdx = it.getColumnIndex(android.provider.CalendarContract.Calendars.OWNER_ACCOUNT)
+
+                var count = 0
+                while (it.moveToNext()) {
+                    count++
+                    val id = if (idIdx >= 0) it.getLong(idIdx) else -1
+                    val name = if (nameIdx >= 0) it.getString(nameIdx) else "null"
+                    val accName = if (accNameIdx >= 0) it.getString(accNameIdx) else "null"
+                    val accType = if (accTypeIdx >= 0) it.getString(accTypeIdx) else "null"
+                    val owner = if (ownerIdx >= 0) it.getString(ownerIdx) else "null"
+
+                    sb.append("[$count] ID: $id\n")
+                    sb.append(" • 캘린더명: $name\n")
+                    sb.append(" • 계정명: $accName ($accType)\n")
+                    sb.append(" • 소유자: $owner\n\n")
+                }
+
+                if (count == 0) {
+                    sb.append("스마트폰에 등록된 캘린더가 0개입니다.")
+                }
+            } ?: sb.append("쿼리 결과 커서가 null입니다.")
+
+        } catch (e: Exception) {
+            sb.append("조회 오류: ${e.message}")
+        }
+
+        androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setTitle("기기 캘린더 목록 (디버그용)")
+            .setMessage(sb.toString().trim())
+            .setPositiveButton("확인", null)
+            .show()
     }
 
     private fun setupFilters() {
