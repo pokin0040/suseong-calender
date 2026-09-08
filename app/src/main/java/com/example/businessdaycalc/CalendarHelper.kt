@@ -21,9 +21,6 @@ class CalendarHelper(private val context: Context) {
     fun getCalendarHolidays(startDate: LocalDate, endDate: LocalDate): Set<LocalDate> {
         val holidays = mutableSetOf<LocalDate>()
 
-        // 1. Always include built-in 100-year Korean Legal Public Holidays DB as baseline
-        holidays.addAll(KoreanHolidays.HOLIDAYS.filter { !it.isBefore(startDate) && !it.isAfter(endDate) })
-
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CALENDAR) != PackageManager.PERMISSION_GRANTED) {
             Log.w(TAG, "READ_CALENDAR 권한이 없습니다.")
             return holidays

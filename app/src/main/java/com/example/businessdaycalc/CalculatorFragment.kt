@@ -138,14 +138,49 @@ class CalculatorFragment : Fragment() {
                 }
 
                 setOnClickListener {
-                    pendingSelectedDate = date
-                    selectedBaseDate = date
-                    populateCalendarGrid()
-                    refreshCalculations() // <--- Real-time recalculation!
+                    showDateDebugDialog(date)
                 }
             }
             gridCalendarDays.addView(cell)
         }
+    }
+
+    private fun showDateDebugDialog(date: LocalDate) {
+        val days = arrayOf("월", "화", "수", "목", "금", "토", "일")
+        val dayOfWeekStr = days[date.dayOfWeek.value - 1]
+
+        val isWeekend = date.dayOfWeek == java.time.DayOfWeek.SATURDAY || date.dayOfWeek == java.time.DayOfWeek.SUNDAY
+        val customHolidayList = holidayManager.getCustomHolidays().filter { it.date == date }
+        val isCustomHoliday = customHolidayList.isNotEmpty()
+        val customHolidayName = customHolidayList.joinToString { it.name }
+
+        val deviceHolidays = calendarHelper.getCalendarHolidays(date, date)
+        val isDeviceHoliday = deviceHolidays.contains(date)
+
+        val calculator = BusinessDayCalculator(
+            holidayManager.getCustomHolidays().map { it.date }.toSet(),
+            deviceHolidays
+        )
+        val isBusinessDay = calculator.addBusinessDays(date, 1) == date
+
+        val sb = StringBuilder()
+        sb.append("📅 선택 날짜: ${date.format(DateTimeFormatter.ofPattern("yyyy.MM.dd"))} ($dayOfWeekStr)\n\n")
+        sb.append(" • 최종 영업일 여부: ${if (isBusinessDay) "⭕ 영업일" else "❌ 휴무일"}\n")
+        sb.append(" • 주말 여부: ${if (isWeekend) "YES (주말)" else "NO (평일)"}\n")
+        sb.append(" • 임시 휴무일: ${if (isCustomHoliday) "YES ('$customHolidayName')" else "NO"}\n")
+        sb.append(" • 구글/기기 캘린더 공휴일: ${if (isDeviceHoliday) "YES (감지됨)" else "NO"}\n")
+
+        androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setTitle("날짜 속성 디버그")
+            .setMessage(sb.toString().trim())
+            .setPositiveButton("선택 및 계산") { _, _ ->
+                pendingSelectedDate = date
+                selectedBaseDate = date
+                populateCalendarGrid()
+                refreshCalculations()
+            }
+            .setNegativeButton("취소", null)
+            .show()
     }
 
     private fun isHolidayOrWeekend(date: LocalDate): Boolean {
