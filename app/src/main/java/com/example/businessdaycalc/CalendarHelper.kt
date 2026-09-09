@@ -37,7 +37,7 @@ class CalendarHelper(private val context: Context) {
          */
         fun isPublicHoliday(title: String, availability: Int): Boolean {
             if (availability == CalendarContract.Instances.AVAILABILITY_BUSY) return true
-            return LEGAL_HOLIDAY_KEYWORDS.any { title.contains(it) } || title.contains("선거일") || title.contains("쉬는 날")
+            return LEGAL_HOLIDAY_KEYWORDS.any { title == it } || title.contains("선거일") || title.contains("쉬는 날")
         }
 
         /**
