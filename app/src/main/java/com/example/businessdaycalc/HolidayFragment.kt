@@ -89,6 +89,10 @@ class HolidayFragment : Fragment() {
         return false
     }
 
+    private fun isForcedWorkDay(date: LocalDate): Boolean {
+        return holidayManager.getCustomHolidays().any { it.date == date && it.isWorkDay }
+    }
+
     private fun showAddEditHolidayDialog(itemToEdit: HolidayItem? = null) {
         if (activeDialog?.isShowing == true) {
             return
@@ -113,7 +117,7 @@ class HolidayFragment : Fragment() {
 
         if (itemToEdit != null) {
             tvDialogTitle.text = "휴무일/영업일 수정"
-            btnConfirmDialog.text = "수정 완료"
+            btnConfirmDialog.text = "수정"
             etHolidayName.setText(itemToEdit.name)
             if (itemToEdit.isWorkDay) {
                 rbTypeWorkDay.isChecked = true
@@ -147,6 +151,7 @@ class HolidayFragment : Fragment() {
 
             for (i in 0 until 42) {
                 val date = gridStartDate.plusDays(i.toLong())
+                val isWorkDay = isForcedWorkDay(date)
                 val isRedDay = isHolidayOrWeekend(date)
 
                 val cell = TextView(requireContext()).apply {
@@ -166,15 +171,27 @@ class HolidayFragment : Fragment() {
                         setTypeface(null, android.graphics.Typeface.BOLD)
                     } else if (date == LocalDate.now()) {
                         setBackgroundResource(R.drawable.bg_day_today)
-                        val colorRes = if (isRedDay) R.color.primary else R.color.text_main
-                        setTextColor(resources.getColor(colorRes, null))
+                        val color = when {
+                            isWorkDay -> Color.parseColor("#1976D2")
+                            isRedDay -> resources.getColor(R.color.primary, null)
+                            else -> resources.getColor(R.color.text_main, null)
+                        }
+                        setTextColor(color)
                         setTypeface(null, android.graphics.Typeface.BOLD)
                     } else if (date.monthValue != displayYM.monthValue) {
-                        val colorRes = if (isRedDay) R.color.text_disabled_red else R.color.text_disabled
-                        setTextColor(resources.getColor(colorRes, null))
+                        val color = when {
+                            isWorkDay -> Color.parseColor("#90CAF9")
+                            isRedDay -> resources.getColor(R.color.text_disabled_red, null)
+                            else -> resources.getColor(R.color.text_disabled, null)
+                        }
+                        setTextColor(color)
                     } else {
-                        val colorRes = if (isRedDay) R.color.primary else R.color.text_main
-                        setTextColor(resources.getColor(colorRes, null))
+                        val color = when {
+                            isWorkDay -> Color.parseColor("#1976D2")
+                            isRedDay -> resources.getColor(R.color.primary, null)
+                            else -> resources.getColor(R.color.text_main, null)
+                        }
+                        setTextColor(color)
                     }
 
                     setOnClickListener {
@@ -216,14 +233,15 @@ class HolidayFragment : Fragment() {
             val calendarHelper = CalendarHelper(requireContext())
             val deviceHolidays = calendarHelper.getCalendarHolidays(pendingDate, pendingDate)
 
-            // 중복 등록 방지 (수정 모드가 아닐 때)
+            // 중복 등록 방지 (수정 모드가 아닐 때, 동일 날짜 기존 설정 체크)
             val existing = holidayManager.getCustomHolidays().find { it.date == pendingDate }
             if (itemToEdit == null && existing != null) {
-                android.widget.Toast.makeText(requireContext(), "이미 등록되어 있는 날짜입니다. 기존 항목을 수정/삭제해 주세요.", android.widget.Toast.LENGTH_SHORT).show()
+                val existingType = if (existing.isWorkDay) "영업일" else "휴무일"
+                android.widget.Toast.makeText(requireContext(), "이미 [${existingType}]로 등록되어 있는 날짜입니다. 기존 항목을 수정/삭제해 주세요.", android.widget.Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            // 휴무일 추가 시 이미 주말/공휴일인 경우 안내
+            // '휴무일'로 추가하려는데 이미 주말이나 캘린더 공휴일인 경우 안내
             if (!isWorkDay && (pendingDate.dayOfWeek == java.time.DayOfWeek.SATURDAY || 
                 pendingDate.dayOfWeek == java.time.DayOfWeek.SUNDAY || 
                 deviceHolidays.contains(pendingDate))) {
