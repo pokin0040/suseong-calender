@@ -66,7 +66,7 @@ class CalendarHelper(private val context: Context) {
     private data class HolidaySource(val calendarId: Long, val accountType: String)
 
     /**
-     * 기기에 등록된 캘린더 중 "공휴일" 캘린더만 골라냅니다.
+     * 공휴일 캘린더 중 LOCAL을 우선 사용하고, 없으면 Google만 사용합니다.
      */
     private fun findHolidayCalendarSources(): List<HolidaySource> {
         val sources = mutableListOf<HolidaySource>()
@@ -105,7 +105,12 @@ class CalendarHelper(private val context: Context) {
             Log.e(TAG, "캘린더 목록 조회 실패", e)
         }
 
-        return sources
+        val localSources = sources.filter {
+            it.accountType.equals(CalendarContract.ACCOUNT_TYPE_LOCAL, ignoreCase = true)
+        }
+        return localSources.ifEmpty {
+            sources.filter { it.accountType.equals("com.google", ignoreCase = true) }
+        }
     }
 
     /**
