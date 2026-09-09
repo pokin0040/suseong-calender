@@ -9,7 +9,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <!-- Top Header -->
+        <!-- Top Red Header -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -35,34 +35,32 @@
                 android:layout_height="wrap_content"
                 android:text="@string/holiday_desc"
                 android:textColor="@color/white"
-                android:textSize="14sp"
-                android:layout_marginTop="16dp" />
+                android:textSize="13sp"
+                android:gravity="center"
+                android:layout_marginTop="12dp" />
         </LinearLayout>
 
+        <!-- Control Row: Checkbox & Add Button -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="16dp"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:paddingTop="16dp"
+            android:paddingBottom="12dp"
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
-            <TextView
+            <CheckBox
+                android:id="@+id/cbOnlyCustom"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/registered_holidays"
-                android:textSize="15sp"
-                android:textStyle="bold" />
-
-            <CheckBox
-                android:id="@+id/cbOnlyCustom"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="등록한 휴무일만 보기"
-                android:textSize="12sp"
+                android:text="등록한 일정만 보기"
+                android:textSize="13sp"
+                android:textStyle="bold"
                 android:textColor="@color/text_main"
-                android:checked="true"
-                android:layout_marginEnd="6dp" />
+                android:checked="true" />
 
             <Button
                 android:id="@+id/btnAddHoliday"
@@ -73,12 +71,12 @@
                 android:textSize="12sp"
                 android:textStyle="bold"
                 android:textColor="@color/white"
-                android:paddingLeft="8dp"
-                android:paddingRight="8dp"
+                android:paddingLeft="12dp"
+                android:paddingRight="12dp"
                 style="@style/Widget.MaterialComponents.Button.UnelevatedButton" />
         </LinearLayout>
 
-        <!-- Filter Row: Year and Month -->
+        <!-- Filter Row: Year and Month Spinners -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -91,27 +89,22 @@
             <Spinner
                 android:id="@+id/spFilterYear"
                 android:layout_width="0dp"
-                android:layout_height="40dp"
+                android:layout_height="42dp"
                 android:layout_weight="1"
-                android:background="@drawable/bg_edittext"
-                android:paddingLeft="8dp"
-                android:paddingRight="8dp"
+                android:background="@drawable/bg_card_item_outline"
+                android:paddingLeft="12dp"
+                android:paddingRight="12dp"
                 android:layout_marginEnd="8dp" />
 
             <Spinner
                 android:id="@+id/spFilterMonth"
                 android:layout_width="0dp"
-                android:layout_height="40dp"
+                android:layout_height="42dp"
                 android:layout_weight="1"
-                android:background="@drawable/bg_edittext"
-                android:paddingLeft="8dp"
-                android:paddingRight="8dp" />
+                android:background="@drawable/bg_card_item_outline"
+                android:paddingLeft="12dp"
+                android:paddingRight="12dp" />
         </LinearLayout>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/divider" />
 
         <TextView
             android:id="@+id/tvEmpty"
@@ -122,12 +115,15 @@
             android:gravity="center"
             android:visibility="gone" />
 
+        <!-- Holidays List Container -->
         <LinearLayout
             android:id="@+id/llHolidaysContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp" />
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:paddingBottom="16dp" />
 
     </LinearLayout>
 

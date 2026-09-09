@@ -1,51 +1,96 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/cardItemRoot"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:padding="16dp"
+    android:background="@drawable/bg_card_item_outline"
     android:gravity="center_vertical"
-    android:background="@drawable/chip_green"
-    android:layout_marginBottom="8dp">
+    android:layout_marginBottom="12dp">
 
+    <!-- Left Accent Vertical Stripe -->
+    <View
+        android:id="@+id/viewAccentStripe"
+        android:layout_width="4dp"
+        android:layout_height="match_parent"
+        android:background="@color/primary" />
+
+    <!-- Content Section (Date, Badge, Name) -->
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:paddingTop="14dp"
+        android:paddingBottom="14dp"
+        android:paddingStart="14dp"
+        android:paddingEnd="8dp">
 
-        <TextView
-            android:id="@+id/tvDate"
+        <!-- Date + Badge Row -->
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:textColor="@color/text_main"
-            android:text="09.03 (화)" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="4dp">
+
+            <TextView
+                android:id="@+id/tvDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="17sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_main"
+                android:text="2026.09.10 (목)" />
+
+            <TextView
+                android:id="@+id/tvBadge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_workday_dark"
+                android:background="@drawable/chip_badge_workday"
+                android:paddingLeft="8dp"
+                android:paddingRight="8dp"
+                android:paddingTop="3dp"
+                android:paddingBottom="3dp"
+                android:layout_marginStart="8dp"
+                android:text="영업일" />
+        </LinearLayout>
 
         <TextView
             android:id="@+id/tvName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="14sp"
+            android:textSize="13sp"
             android:textColor="@color/text_secondary"
-            android:text="[휴무일] 대체공휴일" />
+            android:text="대체공휴일" />
     </LinearLayout>
 
-    <ImageButton
-        android:id="@+id/btnEdit"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:src="@android:drawable/ic_menu_edit"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:contentDescription="수정"
-        android:layout_marginEnd="4dp" />
+    <!-- Right Actions (Edit & Delete Buttons) -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingEnd="12dp"
+        android:gravity="center_vertical">
 
-    <ImageButton
-        android:id="@+id/btnDelete"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:src="@android:drawable/ic_menu_delete"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:contentDescription="@string/delete" />
+        <ImageButton
+            android:id="@+id/btnEdit"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@android:drawable/ic_menu_edit"
+            android:background="@drawable/bg_btn_edit"
+            android:contentDescription="수정"
+            android:layout_marginEnd="6dp" />
+
+        <ImageButton
+            android:id="@+id/btnDelete"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@android:drawable/ic_menu_delete"
+            android:background="@drawable/bg_btn_delete"
+            android:contentDescription="삭제" />
+    </LinearLayout>
 </LinearLayout>

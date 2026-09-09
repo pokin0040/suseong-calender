@@ -2,6 +2,7 @@ package com.example.businessdaycalc
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.os.SystemClock
 import android.view.LayoutInflater
@@ -377,15 +378,28 @@ class HolidayFragment : Fragment() {
 
             for (item in filteredList) {
                 val itemView = inflater.inflate(R.layout.list_item_holiday, llHolidaysContainer, false)
+                val viewAccentStripe = itemView.findViewById<View>(R.id.viewAccentStripe)
                 val tvDate = itemView.findViewById<TextView>(R.id.tvDate)
+                val tvBadge = itemView.findViewById<TextView>(R.id.tvBadge)
                 val tvName = itemView.findViewById<TextView>(R.id.tvName)
                 val btnEdit = itemView.findViewById<View>(R.id.btnEdit)
                 val btnDelete = itemView.findViewById<View>(R.id.btnDelete)
 
                 val dayOfWeek = days[item.date.dayOfWeek.value - 1]
-                val typePrefix = if (item.isWorkDay) "[영업일]" else "[휴무일]"
                 tvDate.text = "${item.date.format(formatter)} ($dayOfWeek)"
-                tvName.text = "$typePrefix ${item.name}"
+                tvName.text = item.name
+
+                if (item.isWorkDay) {
+                    viewAccentStripe.setBackgroundColor(Color.parseColor("#1976D2")) // Blue stripe
+                    tvBadge.text = "영업일"
+                    tvBadge.setTextColor(Color.parseColor("#1976D2"))
+                    tvBadge.setBackgroundResource(R.drawable.chip_badge_workday)
+                } else {
+                    viewAccentStripe.setBackgroundColor(Color.parseColor("#E53935")) // Red stripe
+                    tvBadge.text = "휴무일"
+                    tvBadge.setTextColor(Color.parseColor("#D32F2F"))
+                    tvBadge.setBackgroundResource(R.drawable.chip_badge_holiday)
+                }
 
                 if (item.isCustom) {
                     btnEdit.visibility = View.VISIBLE
