@@ -142,40 +142,41 @@ class HolidayFragment : Fragment() {
     }
 
     private fun setupFilters() {
+        val now = LocalDate.now()
+        val currentYear = now.year
+        val currentMonth = now.monthValue
+
         val isOnlyCustom = cbOnlyCustom.isChecked
         val customHolidays = holidayManager.getCustomHolidays()
 
         val uniqueYears = if (isOnlyCustom) {
-            customHolidays.map { it.date.year }.distinct().sorted()
+            (customHolidays.map { it.date.year } + currentYear).distinct().sorted()
         } else {
             val calendarHelper = CalendarHelper(requireContext())
-            val currentYear = LocalDate.now().year
             val deviceHolidays = calendarHelper.getPublicHolidaysWithNames(
                 LocalDate.of(currentYear - 2, 1, 1),
                 LocalDate.of(currentYear + 2, 12, 31)
             )
-            (customHolidays.map { it.date.year } + deviceHolidays.map { it.date.year }).distinct().sorted()
+            (customHolidays.map { it.date.year } + deviceHolidays.map { it.date.year } + currentYear).distinct().sorted()
         }
 
-        val years = mutableListOf("전체 연도")
-        uniqueYears.forEach { years.add("${it}년") }
-
+        val years = uniqueYears.map { "${it}년" }
         val yearAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, years).apply {
             setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         }
         spFilterYear.adapter = yearAdapter
 
-        val months = mutableListOf("전체 월")
-        for (m in 1..12) {
-            months.add("${m}월")
-        }
+        val defaultYearIndex = uniqueYears.indexOf(currentYear).coerceAtLeast(0)
+        spFilterYear.setSelection(defaultYearIndex, false)
+
+        val months = (1..12).map { "${it}월" }
         val monthAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, months).apply {
             setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         }
         spFilterMonth.adapter = monthAdapter
 
-        spFilterYear.setSelection(0, false)
-        spFilterMonth.setSelection(0, false)
+        val defaultMonthIndex = (currentMonth - 1).coerceIn(0, 11)
+        spFilterMonth.setSelection(defaultMonthIndex, false)
 
         val listener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
@@ -266,7 +267,9 @@ class HolidayFragment : Fragment() {
     private fun updateList() {
         val isOnlyCustom = cbOnlyCustom.isChecked
         val calendarHelper = CalendarHelper(requireContext())
-        val currentYear = LocalDate.now().year
+        val now = LocalDate.now()
+        val currentYear = now.year
+        val currentMonth = now.monthValue
 
         val customItems = holidayManager.getCustomHolidays().map {
             HolidayItem(it.date, it.name, isCustom = true)
@@ -286,19 +289,14 @@ class HolidayFragment : Fragment() {
             (customItems + deviceItems).sortedByDescending { it.date }
         }
 
-        val selectedYearPos = if (spFilterYear.selectedItemPosition < 0) 0 else spFilterYear.selectedItemPosition
-        val selectedMonthPos = if (spFilterMonth.selectedItemPosition < 0) 0 else spFilterMonth.selectedItemPosition
+        val yearText = spFilterYear.selectedItem as? String ?: ""
+        val selectedYear = yearText.replace("년", "").toIntOrNull() ?: currentYear
+
+        val monthText = spFilterMonth.selectedItem as? String ?: ""
+        val selectedMonth = monthText.replace("월", "").toIntOrNull() ?: currentMonth
 
         val filteredList = combined.filter { item ->
-            val matchesYear = if (selectedYearPos <= 0) true else {
-                val yearText = spFilterYear.selectedItem as? String ?: ""
-                val year = yearText.replace("년", "").toIntOrNull()
-                year == null || item.date.year == year
-            }
-            val matchesMonth = if (selectedMonthPos <= 0) true else {
-                item.date.monthValue == selectedMonthPos
-            }
-            matchesYear && matchesMonth
+            item.date.year == selectedYear && item.date.monthValue == selectedMonth
         }
 
         llHolidaysContainer.removeAllViews()

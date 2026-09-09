@@ -7,7 +7,13 @@ import android.content.Context
 import android.content.Intent
 
 class BusinessDayWidgetLarge : AppWidgetProvider() {
+    override fun onEnabled(context: Context) {
+        super.onEnabled(context)
+        MidnightUpdateReceiver.scheduleMidnightAlarm(context)
+    }
+
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
+        MidnightUpdateReceiver.scheduleMidnightAlarm(context)
         for (appWidgetId in appWidgetIds) {
             WidgetHelper.updateWidgets(context, appWidgetManager, appWidgetId, WidgetType.LARGE)
         }
@@ -26,7 +32,13 @@ class BusinessDayWidgetLarge : AppWidgetProvider() {
 }
 
 class BusinessDayWidgetMedium : AppWidgetProvider() {
+    override fun onEnabled(context: Context) {
+        super.onEnabled(context)
+        MidnightUpdateReceiver.scheduleMidnightAlarm(context)
+    }
+
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
+        MidnightUpdateReceiver.scheduleMidnightAlarm(context)
         for (appWidgetId in appWidgetIds) {
             WidgetHelper.updateWidgets(context, appWidgetManager, appWidgetId, WidgetType.MEDIUM)
         }
@@ -44,7 +56,13 @@ class BusinessDayWidgetMedium : AppWidgetProvider() {
 }
 
 class BusinessDayWidgetSmall : AppWidgetProvider() {
+    override fun onEnabled(context: Context) {
+        super.onEnabled(context)
+        MidnightUpdateReceiver.scheduleMidnightAlarm(context)
+    }
+
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
+        MidnightUpdateReceiver.scheduleMidnightAlarm(context)
         for (appWidgetId in appWidgetIds) {
             WidgetHelper.updateWidgets(context, appWidgetManager, appWidgetId, WidgetType.SMALL)
         }

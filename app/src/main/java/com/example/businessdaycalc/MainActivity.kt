@@ -31,6 +31,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         checkAndRequestCalendarPermission()
+        MidnightUpdateReceiver.scheduleMidnightAlarm(this)
 
         val bottomNavigation = findViewById<BottomNavigationView>(R.id.bottom_navigation)
 
