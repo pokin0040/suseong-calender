@@ -45,12 +45,14 @@ object WidgetHelper {
             val today = LocalDate.now(ZoneId.systemDefault())
 
             val holidayManager = HolidayManager(context)
-            val customHolidays = holidayManager.getCustomHolidays().map { it.date }.toSet()
+            val allCustom = holidayManager.getCustomHolidays()
+            val customHolidays = allCustom.filter { !it.isWorkDay }.map { it.date }.toSet()
+            val forcedWorkDays = allCustom.filter { it.isWorkDay }.map { it.date }.toSet()
 
             val calendarHelper = CalendarHelper(context)
             val deviceHolidays = calendarHelper.getCalendarHolidays(today, today.plusDays(30))
 
-            val calculator = BusinessDayCalculator(customHolidays, deviceHolidays)
+            val calculator = BusinessDayCalculator(customHolidays, deviceHolidays, forcedWorkDays)
             val settingsManager = SettingsManager(context)
 
             // Refresh button (Large widget)
@@ -146,7 +148,7 @@ object WidgetHelper {
             views.setViewVisibility(del3, View.VISIBLE)
         } else {
             views.setViewVisibility(dash2, View.GONE)
-            views.setViewVisibility(del3, View.GONE)
+            views.setViewVisibility(dash2, View.GONE)
         }
 
         // Storage

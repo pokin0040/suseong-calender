@@ -5,7 +5,8 @@ import java.time.LocalDate
 
 class BusinessDayCalculator(
     private val customHolidays: Set<LocalDate>,
-    private val deviceHolidays: Set<LocalDate>
+    private val deviceHolidays: Set<LocalDate>,
+    private val forcedWorkDays: Set<LocalDate> = emptySet()
 ) {
 
     /**
@@ -46,10 +47,16 @@ class BusinessDayCalculator(
         return dates
     }
 
-    private fun isBusinessDay(date: LocalDate): Boolean {
+    fun isBusinessDay(date: LocalDate): Boolean {
+        // 1. 강제 영업일(forcedWorkDays)인 경우 공휴일/주말이어도 무조건 영업일(true) 처리
+        if (forcedWorkDays.contains(date)) {
+            return true
+        }
+        // 2. 주말인 경우 영업일 아님
         if (date.dayOfWeek == DayOfWeek.SATURDAY || date.dayOfWeek == DayOfWeek.SUNDAY) {
             return false
         }
+        // 3. 사용자 휴무일 또는 기기 캘린더 공휴일인 경우 영업일 아님
         if (customHolidays.contains(date)) {
             return false
         }

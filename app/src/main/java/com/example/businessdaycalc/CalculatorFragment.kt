@@ -198,10 +198,16 @@ class CalculatorFragment : Fragment() {
     }
 
     private fun isHolidayOrWeekend(date: LocalDate): Boolean {
+        val allCustom = holidayManager.getCustomHolidays()
+        val forcedWorkDays = allCustom.filter { it.isWorkDay }.map { it.date }.toSet()
+        if (forcedWorkDays.contains(date)) {
+            return false // 강제 영업일이므로 주말/휴일 아님
+        }
+
         if (date.dayOfWeek == java.time.DayOfWeek.SATURDAY || date.dayOfWeek == java.time.DayOfWeek.SUNDAY) {
             return true
         }
-        val customHolidays = holidayManager.getCustomHolidays().map { it.date }.toSet()
+        val customHolidays = allCustom.filter { !it.isWorkDay }.map { it.date }.toSet()
         if (customHolidays.contains(date)) {
             return true
         }
@@ -227,9 +233,12 @@ class CalculatorFragment : Fragment() {
         val formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd")
         tvBaseDateValue.text = "${baseDate.format(formatter)} ($dayOfWeek)"
 
-        val customHolidays = holidayManager.getCustomHolidays().map { it.date }.toSet()
+        val allCustom = holidayManager.getCustomHolidays()
+        val customHolidays = allCustom.filter { !it.isWorkDay }.map { it.date }.toSet()
+        val forcedWorkDays = allCustom.filter { it.isWorkDay }.map { it.date }.toSet()
+
         val deviceHolidays = calendarHelper.getCalendarHolidays(baseDate, baseDate.plusDays(30))
-        val calculator = BusinessDayCalculator(customHolidays, deviceHolidays)
+        val calculator = BusinessDayCalculator(customHolidays, deviceHolidays, forcedWorkDays)
 
         val settings = settingsManager.getAllSettings()
 

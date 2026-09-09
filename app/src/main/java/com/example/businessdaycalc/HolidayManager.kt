@@ -6,7 +6,11 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.time.LocalDate
 
-data class CustomHoliday(val date: LocalDate, val name: String)
+data class CustomHoliday(
+    val date: LocalDate,
+    val name: String,
+    val isWorkDay: Boolean = false // false = 휴무일, true = 영업일
+)
 
 class HolidayManager(context: Context) {
     private val prefs: SharedPreferences = context.getSharedPreferences("holidays_prefs", Context.MODE_PRIVATE)
@@ -21,7 +25,8 @@ class HolidayManager(context: Context) {
                 val obj = array.getJSONObject(i)
                 val dateStr = obj.getString("date")
                 val name = obj.getString("name")
-                list.add(CustomHoliday(LocalDate.parse(dateStr), name))
+                val isWorkDay = obj.optBoolean("isWorkDay", false)
+                list.add(CustomHoliday(LocalDate.parse(dateStr), name, isWorkDay))
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -46,6 +51,7 @@ class HolidayManager(context: Context) {
             val obj = JSONObject()
             obj.put("date", it.date.toString())
             obj.put("name", it.name)
+            obj.put("isWorkDay", it.isWorkDay)
             array.put(obj)
         }
         prefs.edit().putString(KEY_HOLIDAYS, array.toString()).apply()

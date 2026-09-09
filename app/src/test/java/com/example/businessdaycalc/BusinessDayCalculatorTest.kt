@@ -115,4 +115,21 @@ class BusinessDayCalculatorTest {
         assertTrue(expanded.contains(LocalDate.of(2026, 9, 21))) // Monday (added)
         assertTrue(expanded.contains(LocalDate.of(2026, 9, 23))) // Wednesday (added)
     }
+
+    @Test
+    fun testForcedWorkDayOnWeekendOrHoliday() {
+        // 토요일(9월 5일)과 공휴일(9월 25일 추석)을 강제 영업일(forcedWorkDays)로 지정한 경우
+        val saturday = LocalDate.of(2026, 9, 5)
+        val chuseok = LocalDate.of(2026, 9, 25)
+
+        val calculator = BusinessDayCalculator(
+            customHolidays = emptySet(),
+            deviceHolidays = setOf(chuseok),
+            forcedWorkDays = setOf(saturday, chuseok)
+        )
+
+        // 토요일과 추석 당일 모두 영업일(true)로 판별되어야 함
+        assertTrue(calculator.isBusinessDay(saturday))
+        assertTrue(calculator.isBusinessDay(chuseok))
+    }
 }
