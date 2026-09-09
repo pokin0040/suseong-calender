@@ -148,7 +148,7 @@ object WidgetHelper {
             views.setViewVisibility(del3, View.VISIBLE)
         } else {
             views.setViewVisibility(dash2, View.GONE)
-            views.setViewVisibility(dash2, View.GONE)
+            views.setViewVisibility(del3, View.GONE)
         }
 
         // Storage
