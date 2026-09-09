@@ -24,6 +24,15 @@ class CalendarHelper(private val context: Context) {
     companion object {
         private const val TAG = "CalendarHelper"
 
+        internal fun selectHolidaySources(sources: List<HolidaySource>): List<HolidaySource> {
+            val localSources = sources.filter {
+                it.accountType.equals(CalendarContract.ACCOUNT_TYPE_LOCAL, ignoreCase = true)
+            }
+            return localSources.ifEmpty {
+                sources.filter { it.accountType.equals("com.google", ignoreCase = true) }
+            }
+        }
+
         private val LEGAL_HOLIDAY_KEYWORDS = setOf(
             "신정", "설날", "삼일절", "어린이날", "부처님", "현충일",
             "광복절", "추석", "개천절", "한글날", "성탄절", "크리스마스",
@@ -63,7 +72,7 @@ class CalendarHelper(private val context: Context) {
         }
     }
 
-    private data class HolidaySource(val calendarId: Long, val accountType: String)
+    internal data class HolidaySource(val calendarId: Long, val accountType: String)
 
     /**
      * 공휴일 캘린더 중 LOCAL을 우선 사용하고, 없으면 Google만 사용합니다.
@@ -105,12 +114,7 @@ class CalendarHelper(private val context: Context) {
             Log.e(TAG, "캘린더 목록 조회 실패", e)
         }
 
-        val localSources = sources.filter {
-            it.accountType.equals(CalendarContract.ACCOUNT_TYPE_LOCAL, ignoreCase = true)
-        }
-        return localSources.ifEmpty {
-            sources.filter { it.accountType.equals("com.google", ignoreCase = true) }
-        }
+        return selectHolidaySources(sources)
     }
 
     /**
