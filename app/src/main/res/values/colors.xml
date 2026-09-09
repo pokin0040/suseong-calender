@@ -13,6 +13,15 @@
     <color name="chip_green_text">#C8102E</color> <!-- Red chip text -->
     <color name="chip_blue_border">#64B5F6</color>
     <color name="chip_blue_text">#1976D2</color>
+    <!-- Widget-only pastel palette. Kept separate from calculator screen chips. -->
+    <color name="widget_delivery_bg">#E7F1FF</color>
+    <color name="widget_delivery_text">#1769C2</color>
+    <color name="widget_storage_bg">#FFE9EA</color>
+    <color name="widget_storage_text">#C74650</color>
+    <color name="widget_row_bg">#F7F9FD</color>
+    <color name="widget_row_border">#E8EDF5</color>
+    <color name="widget_header_text">#172B4D</color>
+    <color name="widget_separator">#D5DDE9</color>
     <color name="widget_background">#FFFFFF</color>
     <color name="divider">#EEEEEE</color>
     <color name="ic_launcher_background">#FBC246</color>

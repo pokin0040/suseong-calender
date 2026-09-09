@@ -85,6 +85,10 @@ object WidgetHelper {
                 }
             }
 
+            if (widgetType == WidgetType.LARGE) {
+                applyLargeWidgetTheme(views, isDark)
+            }
+
             // Click widget root to open app (open Calculator tab)
             val openIntent = Intent(context, MainActivity::class.java).apply {
                 putExtra("OPEN_TAB", "CALC")
@@ -160,6 +164,36 @@ object WidgetHelper {
             views.setViewVisibility(colon, View.GONE)
             views.setViewVisibility(sto, View.GONE)
         }
+    }
+
+    /** Applies only visual surfaces; date calculation and visibility remain unchanged. */
+    private fun applyLargeWidgetTheme(views: RemoteViews, isDark: Boolean) {
+        val rowBackground = if (isDark) R.drawable.widget_schedule_row_dark else R.drawable.widget_schedule_row
+        val deliveryBackground = if (isDark) R.drawable.widget_chip_delivery_dark else R.drawable.widget_chip_delivery
+        val storageBackground = if (isDark) R.drawable.widget_chip_storage_dark else R.drawable.widget_chip_storage
+
+        val rowIds = intArrayOf(R.id.rowNormal, R.id.rowCert, R.id.rowCourt, R.id.rowContract)
+        val deliveryIds = intArrayOf(
+            R.id.chipNormalDel1, R.id.chipNormalDel2, R.id.chipNormalDel3,
+            R.id.chipCertDel1, R.id.chipCertDel2, R.id.chipCertDel3,
+            R.id.chipCourtDel1, R.id.chipCourtDel2, R.id.chipCourtDel3,
+            R.id.chipContractDel1, R.id.chipContractDel2, R.id.chipContractDel3
+        )
+        val storageIds = intArrayOf(R.id.chipNormalSto, R.id.chipCertSto, R.id.chipCourtSto, R.id.chipContractSto)
+
+        rowIds.forEach { views.setInt(it, "setBackgroundResource", rowBackground) }
+        deliveryIds.forEach {
+            views.setInt(it, "setBackgroundResource", deliveryBackground)
+            views.setTextColor(it, if (isDark) Color.parseColor("#89C2FF") else Color.parseColor("#1769C2"))
+        }
+        storageIds.forEach {
+            views.setInt(it, "setBackgroundResource", storageBackground)
+            views.setTextColor(it, if (isDark) Color.parseColor("#FFABB4") else Color.parseColor("#C74650"))
+        }
+
+        views.setTextColor(R.id.tvWidgetTitle, if (isDark) Color.parseColor("#F2F5FC") else Color.parseColor("#172B4D"))
+        views.setTextColor(R.id.tvLegendDelivery, if (isDark) Color.parseColor("#89C2FF") else Color.parseColor("#1769C2"))
+        views.setTextColor(R.id.tvLegendStorage, if (isDark) Color.parseColor("#FFABB4") else Color.parseColor("#C74650"))
     }
 
     private fun bindSmallRow(views: RemoteViews, type: DeliveryType, deliveryDates: List<LocalDate>, storageDate: LocalDate?, isDark: Boolean) {
